@@ -9,13 +9,15 @@ create table CLIENTE (
 create table TRAJETO (
 	id_trajeto				int				primary key,
 	cidade_origem			varchar(20)		not null,
-	cidade_destino			varchar(20)		not null
+	cidade_destino			varchar(20)		not null,
+	constraint check_destino_valido
+		check (cidade_origem <> cidade_destino)
 );
 
 create table AERONAVE (
 	identificacao			char(6)			primary key,
 	modelo					varchar(20)		not null,
-	quantidade_assentos		int				not null check (quantidade_assentos > 0),
+	quantidade_assentos		int				not null,
 	status					varchar(10)		not null,
 	constraint check_status_aeronave
 		check (status in (
@@ -23,15 +25,15 @@ create table AERONAVE (
 		    'MANUTENCAO',
 		    'OPERANDO',
 		    'INATIVA'
-		))
+		)),
+	constraint check_quantidade_assentos
+		check (quantidade_assentos > 0)
 );
 
 create table TRIPULANTE (
 	cpf						char(11)		primary key,
-	nome					varchar(50)		not null
+	nome					varchar(50)		not null,
 );
-
-
 
 create table USUARIO (
 	email					varchar(50)		primary key,
@@ -46,7 +48,13 @@ create table USUARIO (
 			'GERENTE',
 			'ADMINISTRADOR',
 			'CLIENTE'
-		))
+		)),
+	constraint check_tipo_usuario_valido
+		check (
+			(tipo = 'CLIENTE' and cpf_cliente is not null)
+			or
+			(tipo <> 'CLIENTE' and cpf_cliente is null)
+		)
 );
 
 create table VOO (
@@ -60,6 +68,7 @@ create table VOO (
 	foreign key (id_aeronave)	references AERONAVE (identificacao),
 	constraint check_status_voo
 		check (status in (
+			'PLANEJAMENTO',
 			'PROGRAMADO',
 		    'ATRASADO',
 		    'EMBARQUE',
@@ -75,7 +84,7 @@ create table PASSAGEM (
 	numero_bilhete 			char(13)		primary key,
 	numero_assento			int				not null,
 	data_compra				date 			not null,
-	preco					numeric(10,2)	not null check (preco > 0),
+	preco					numeric(10,2)	not null,
 	status					varchar(9)		not null,
 	numero_voo				varchar(10)		not null,
 	cpf_cliente				char(11)		not null,
@@ -87,7 +96,9 @@ create table PASSAGEM (
 		    'EMITIDA',
 		    'CANCELADA',
 		    'UTILIZADA'
-		))
+		)),
+	constraint check_preco
+		 check (preco > 0)
 );
 
 create table TRIPULACAO_VOO (
