@@ -1,20 +1,57 @@
--- VERIFICA SE EXISTEM ASENTOS DISPONIVEIS NA AERONAVE PARA MARCAR UMA PASSAGEM
+set search_path to decolae;
+
+
+-- VERIFICA CONDIÇÕES PARA MARCAR UMA PASSAGEM
 create or replace function verifica_disponibilidade_voo()
 returns trigger as $$
-begin 
+declare
+	v_capacidade int;
+	v_ocupados int;
+begin
+	-- checa se o voo ainda pode emitir passagens
 	if exists (
 		select 1
 		from VOO
-		where numero_voo = new.numero_voo and status not in('PROGRAMADO', 'ATRASADO')
-	) then 
-		raise exception 'Não é possivel emitir passagem para voos com esses status';
+		where numero_voo = new.numero_voo and status not in ('PROGRAMADO', 'ATRASADO')
+	)then
+		raise exception 'nao e possivel emitir passagens para voos nesse status';
 	end if;
 	
-	select A.quantidade_assento
+	-- checa se o assento esta vazio
+	if exists (
+		select 1
+		from PASSAGEM
+		where numero_voo = new.numero_voo and numero_assento = new.numero_assento and status <> 'CANCELADA' and numero_bilhete <> new.numero_bilhete
+	) then
+		raise exception 'o assento % ja esta ocupado', new.numero_assento;
+	end if;
 	
+	-- pega a quantidade de assentos da aeronave escalada para aquele voo
+	select A.quantidade_assentos
+	into v_capacidade
+	from VOO V join AERONAVE A on V.id_aeronave = A.identificacao
+	where V.numero_voo = new.numero_voo;
+	
+	-- conta as passagens validas excluindo a nova passagem
+	select count (*)
+	into v_ocupados
+	from PASSAGEM
+	where numero_voo = new.numero_voo and status = 'EMITIDA' and numero_bilhete <> new.numero_bilhete;
+	
+	-- verifica se voo esta lotado
+	if v_ocupados >= v_capacidade then
+		raise exception 'voo lotado';
+	end if;
+	
+	-- verifica se o numero do assento e valido
+	if new.numero_assento < 1 or new.numero_assento > v_capacidade then
+		raise exception 'Numero de assento invalido';
+	end if;
+
 	return new;
 end;
 $$ language plpgsql;
+
 
 create trigger trigger_disponibilidade_voo
 before insert or update on PASSAGEM
@@ -80,6 +117,6 @@ $$ language plpgsql;
 create trigger trigger_tripulacao_completa
 before update of status on VOO
 for each row
-execute function verifica_tripulacao_completa()
+execute function verifica_tripulacao_completa();
 
 

@@ -32,7 +32,7 @@ create table AERONAVE (
 
 create table TRIPULANTE (
 	cpf						char(11)		primary key,
-	nome					varchar(50)		not null,
+	nome					varchar(50)		not null
 );
 
 create table USUARIO (
@@ -68,7 +68,7 @@ create table VOO (
 	foreign key (id_aeronave)	references AERONAVE (identificacao),
 	constraint check_status_voo
 		check (status in (
-			'PLANEJAMENTO',
+			'PLANEJAMENTO' -- 
 			'PROGRAMADO',
 		    'ATRASADO',
 		    'EMBARQUE',
@@ -88,7 +88,6 @@ create table PASSAGEM (
 	status					varchar(9)		not null,
 	numero_voo				varchar(10)		not null,
 	cpf_cliente				char(11)		not null,
-	unique (numero_voo, numero_assento),
 	foreign key (numero_voo) references VOO (numero_voo),
 	foreign key (cpf_cliente) references CLIENTE (cpf),
 	constraint check_status_passagem
