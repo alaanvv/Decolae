@@ -1,118 +1,106 @@
-create schema if not exists decolae;
-set search_path to decolae;
+CREATE schema if NOT EXISTS decolae;
 
-create table CLIENTE (
-	cpf						char(11)		primary key,
-	telefone				varchar(20)		not null
+SET search_path TO decolae;
+
+CREATE TABLE CLIENTE (
+  cpf char(11) PRIMARY key,
+  telefone varchar(20) NOT NULL
 );
 
-create table TRAJETO (
-	id_trajeto				int				primary key,
-	cidade_origem			varchar(20)		not null,
-	cidade_destino			varchar(20)		not null,
-	constraint check_destino_valido
-		check (cidade_origem <> cidade_destino)
+CREATE TABLE TRAJETO (
+  id_trajeto int PRIMARY key,
+  cidade_origem varchar(20) NOT NULL,
+  cidade_destino varchar(20) NOT NULL,
+  CONSTRAINT check_destino_valido CHECK (cidade_origem <> cidade_destino)
 );
 
-create table AERONAVE (
-	identificacao			char(6)			primary key,
-	modelo					varchar(20)		not null,
-	quantidade_assentos		int				not null,
-	status					varchar(10)		not null,
-	constraint check_status_aeronave
-		check (status in (
-			'DISPONIVEL',
-		    'MANUTENCAO',
-		    'OPERANDO',
-		    'INATIVA'
-		)),
-	constraint check_quantidade_assentos
-		check (quantidade_assentos > 0)
+CREATE TABLE AERONAVE (
+  identificacao char(6) PRIMARY key,
+  modelo varchar(20) NOT NULL,
+  quantidade_assentos int NOT NULL,
+  status varchar(10) NOT NULL,
+  CONSTRAINT check_status_aeronave CHECK (
+    status IN ('DISPONIVEL', 'MANUTENCAO', 'OPERANDO', 'INATIVA')
+  ),
+  CONSTRAINT check_quantidade_assentos CHECK (quantidade_assentos > 0)
 );
 
-create table TRIPULANTE (
-	cpf						char(11)		primary key,
-	nome					varchar(50)		not null
+CREATE TABLE TRIPULANTE (
+  cpf char(11) PRIMARY key,
+  nome varchar(50) NOT NULL
 );
 
-create table USUARIO (
-	email					varchar(50)		primary key,
-	nome					varchar(50)		not null,
-	senha					varchar(50)		not null,
-	tipo					varchar(13)		not null,
-	cpf_cliente				char(11),
-	unique (cpf_cliente),
-	foreign key (cpf_cliente) 	references CLIENTE (cpf),
-	constraint check_tipo_usuario
-		check  (tipo in (
-			'GERENTE',
-			'ADMINISTRADOR',
-			'CLIENTE'
-		)),
-	constraint check_tipo_usuario_valido
-		check (
-			(tipo = 'CLIENTE' and cpf_cliente is not null)
-			or
-			(tipo <> 'CLIENTE' and cpf_cliente is null)
-		)
+CREATE TABLE USUARIO (
+  email varchar(50) PRIMARY key,
+  nome varchar(50) NOT NULL,
+  senha varchar(50) NOT NULL,
+  tipo varchar(13) NOT NULL,
+  cpf_cliente char(11),
+  UNIQUE (cpf_cliente),
+  FOREIGN key (cpf_cliente) REFERENCES CLIENTE (cpf),
+  CONSTRAINT check_tipo_usuario CHECK (tipo IN ('GERENTE', 'ADMINISTRADOR', 'CLIENTE')),
+  CONSTRAINT check_tipo_usuario_valido CHECK (
+    (
+      tipo = 'CLIENTE'
+      AND cpf_cliente IS NOT NULL
+    )
+    OR (
+      tipo <> 'CLIENTE'
+      AND cpf_cliente IS NULL
+    )
+  )
 );
 
-create table VOO (
-	numero_voo				varchar(10)		primary key,
-	status					varchar(12)		not null,
-	previsao_partida		timestamptz		not null,
-	previsao_chegada		timestamptz		not null,
-	id_trajeto				int				not null,
-	id_aeronave				char(6)			not null,
-	foreign key (id_trajeto) 	references TRAJETO (id_trajeto),
-	foreign key (id_aeronave)	references AERONAVE (identificacao),
-	constraint check_status_voo
-		check (status in (
-			'PLANEJAMENTO' -- 
-			'PROGRAMADO',
-		    'ATRASADO',
-		    'EMBARQUE',
-		    'EM_ANDAMENTO',
-		    'CONCLUIDO',
-		    'CANCELADO'
-		)),
-	constraint check_data_valida
-		check (previsao_partida < previsao_chegada)
+CREATE TABLE VOO (
+  numero_voo varchar(10) PRIMARY key,
+  status varchar(12) NOT NULL,
+  previsao_partida timestamptz NOT NULL,
+  previsao_chegada timestamptz NOT NULL,
+  id_trajeto int NOT NULL,
+  id_aeronave char(6) NOT NULL,
+  FOREIGN key (id_trajeto) REFERENCES TRAJETO (id_trajeto),
+  FOREIGN key (id_aeronave) REFERENCES AERONAVE (identificacao),
+  CONSTRAINT check_status_voo CHECK (
+    status IN (
+      'PLANEJAMENTO',
+      'PROGRAMADO',
+      'ATRASADO',
+      'EMBARQUE',
+      'EM_ANDAMENTO',
+      'CONCLUIDO',
+      'CANCELADO'
+    )
+  ),
+  CONSTRAINT check_data_valida CHECK (previsao_partida < previsao_chegada)
 );
 
-create table PASSAGEM (
-	numero_bilhete 			char(13)		primary key,
-	numero_assento			int				not null,
-	data_compra				date 			not null,
-	preco					numeric(10,2)	not null,
-	status					varchar(9)		not null,
-	numero_voo				varchar(10)		not null,
-	cpf_cliente				char(11)		not null,
-	foreign key (numero_voo) references VOO (numero_voo),
-	foreign key (cpf_cliente) references CLIENTE (cpf),
-	constraint check_status_passagem
-		check (status in (
-		    'EMITIDA',
-		    'CANCELADA',
-		    'UTILIZADA'
-		)),
-	constraint check_preco
-		 check (preco > 0)
+CREATE TABLE PASSAGEM (
+  numero_bilhete char(13) PRIMARY key,
+  numero_assento int NOT NULL,
+  data_compra date NOT NULL,
+  preco numeric(10, 2) NOT NULL,
+  status varchar(9) NOT NULL,
+  numero_voo varchar(10) NOT NULL,
+  cpf_cliente char(11) NOT NULL,
+  FOREIGN key (numero_voo) REFERENCES VOO (numero_voo),
+  FOREIGN key (cpf_cliente) REFERENCES CLIENTE (cpf),
+  CONSTRAINT check_status_passagem CHECK (status IN ('EMITIDA', 'CANCELADA', 'UTILIZADA')),
+  CONSTRAINT check_preco CHECK (preco > 0)
 );
 
-create table TRIPULACAO_VOO (
-	numero_voo				varchar(10)		not null,
-	cpf_tripulante			char(11)		not null,
-	funcao_no_voo			varchar(10)		not null,
-	primary key(numero_voo, cpf_tripulante),
-	foreign key (numero_voo) references VOO (numero_voo),
-	foreign key (cpf_tripulante) references TRIPULANTE (cpf),
-	constraint check_funcao_no_voo
-		check (funcao_no_voo in (
-		    'COMANDANTE',
-		    'COPILOTO',
-		    'MECANICO',
-		    'COMISSARIO'
-		))
+CREATE TABLE TRIPULACAO_VOO (
+  numero_voo varchar(10) NOT NULL,
+  cpf_tripulante char(11) NOT NULL,
+  funcao_no_voo varchar(10) NOT NULL,
+  PRIMARY key (numero_voo, cpf_tripulante),
+  FOREIGN key (numero_voo) REFERENCES VOO (numero_voo),
+  FOREIGN key (cpf_tripulante) REFERENCES TRIPULANTE (cpf),
+  CONSTRAINT check_funcao_no_voo CHECK (
+    funcao_no_voo IN (
+      'COMANDANTE',
+      'COPILOTO',
+      'MECANICO',
+      'COMISSARIO'
+    )
+  )
 );
-
