@@ -13,8 +13,8 @@ A decolaê é uma empresa de voos domésticos, que deseja organizar melhor seus 
 - [x] Diagrama de entidade relacionamento
 - [x] Modelo relacional
 - [x] Responder ressalvas da primeira entrega
-- [ ] Criar banco de dados
+- [x] Criar banco de dados
   - [x] Documentar inicialização
   - [x] Criar scripts auxiliares em `bash`
-  - [ ] Popular banco
+  - [x] Popular banco
 - [ ] Criar protótipo da interface

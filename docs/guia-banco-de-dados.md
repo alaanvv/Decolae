@@ -23,3 +23,4 @@ Pra abrir o terminal do banco de dados:
 # Scripts úteis
 
 `database/setup.sh` - inicializa o banco de dados `decolae` com o *schema* e as *triggers*
+`database/seed.sh` - popula o banco de dados
