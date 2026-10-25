@@ -6,6 +6,10 @@ app.register(require('./routes/voos'), {
   prefix: '/voos'
 })
 
+app.register(require('./routes/trajetos'), {
+  prefix: '/trajetos'
+})
+
 app.listen({
   port: 3000,
   host: '127.0.0.1'
