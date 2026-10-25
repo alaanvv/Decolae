@@ -44,7 +44,7 @@ CREATE TABLE CLIENTE (
 );
 
 CREATE TABLE TRAJETO (
-  id_trajeto int PRIMARY key,
+  id_trajeto int GENERATED ALWAYS AS IDENTITY PRIMARY key,
   cidade_origem varchar(20) NOT NULL,
   cidade_destino varchar(20) NOT NULL,
   CONSTRAINT check_destino_valido CHECK (cidade_origem <> cidade_destino)
@@ -54,7 +54,7 @@ CREATE TABLE AERONAVE (
   identificacao char(6) PRIMARY key,
   modelo varchar(20) NOT NULL,
   quantidade_assentos int NOT NULL,
-  status status_aeronave NOT NULL,
+  status status_aeronave NOT NULL DEFAULT 'DISPONIVEL',
   CONSTRAINT check_quantidade_assentos CHECK (quantidade_assentos > 0)
 );
 
