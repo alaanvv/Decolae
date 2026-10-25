@@ -14,6 +14,10 @@ app.register(require('./routes/aeronaves'), {
   prefix: '/aeronaves'
 })
 
+app.register(require('./routes/tripulantes'), {
+  prefix: '/tripulantes'
+})
+
 app.listen({
   port: 3000,
   host: '127.0.0.1'
