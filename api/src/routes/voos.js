@@ -1,6 +1,6 @@
-const db = require('../db')
+import db from '../db.js'
 
-async function rotasVoos(app) {
+export default async (app) => {
   app.get('/', async (_request, _reply) => {
     const result = await db.query(`
       SELECT
@@ -95,5 +95,3 @@ async function rotasVoos(app) {
     return result.rows[0]
   });
 }
-
-module.exports = rotasVoos

@@ -1,6 +1,6 @@
-const db = require('../db')
+import db from '../db.js'
 
-async function rotasTripulantes(app) {
+export default async (app) => {
   app.get('/', async (_request, _reply) => {
     const result = await db.query(`
       SELECT *
@@ -42,5 +42,3 @@ async function rotasTripulantes(app) {
     }
   })
 }
-
-module.exports = rotasTripulantes

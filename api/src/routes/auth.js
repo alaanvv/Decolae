@@ -1,6 +1,6 @@
-const db = require('../db')
+import db from '../db.js'
 
-async function rotasAuth(app) {
+export default async (app) => {
   app.post('/register', async (request, reply) => {
     const {
       email,
@@ -112,5 +112,3 @@ async function rotasAuth(app) {
   });
 
 }
-
-module.exports = rotasAuth
