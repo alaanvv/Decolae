@@ -18,6 +18,10 @@ app.register(require('./routes/tripulantes'), {
   prefix: '/tripulantes'
 })
 
+app.register(require('./routes/auth'), {
+  prefix: '/auth'
+})
+
 app.listen({
   port: 3000,
   host: '127.0.0.1'
