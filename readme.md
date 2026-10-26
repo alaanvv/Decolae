@@ -18,5 +18,5 @@ A decolaê é uma empresa de voos domésticos, que deseja organizar melhor seus 
   - [x] Documentar inicialização
   - [x] Criar scripts auxiliares em `bash`
   - [x] Popular banco
-- [ ] Criar API
+- [x] Criar API
 - [ ] Criar protótipo da interface

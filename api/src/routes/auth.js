@@ -90,6 +90,27 @@ async function rotasAuth(app) {
     }
   })
 
+  app.get('/login', async (request, reply) => {
+    const { email, senha } = request.body
+
+    const result = await db.query(`
+      SELECT *
+      FROM usuario
+      LEFT JOIN cliente
+        ON cliente.cpf = usuario.cpf_cliente
+      WHERE usuario.email = $1
+      AND usuario.senha = $2
+    `, [email, senha])
+
+    if (result.rows.length === 0) {
+      return reply.code(404).send({
+        erro: 'Usuário não encontrado'
+      })
+    }
+
+    return result.rows[0]
+  });
+
 }
 
 module.exports = rotasAuth
