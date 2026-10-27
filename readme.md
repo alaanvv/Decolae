@@ -20,3 +20,20 @@ A decolaê é uma empresa de voos domésticos, que deseja organizar melhor seus 
   - [x] Popular banco
 - [x] Criar API
 - [ ] Criar protótipo da interface
+  - [ ] Tela de login que funciona pra todo tipo de usuário  
+        Ainda não tem sistema de token de autenticação nem segurança nas rotas, então o login é só usar a rota `/login` e usar o tipo de usuário retornado pra redirecionar
+  - [ ] Dashboard de administrador
+    - [ ] Visualizar lista de voos
+    - [ ] Criar voo
+  - [ ] Dashboard de gerente
+    - [ ] Aba "Trajetos"
+      - [ ] Visualizar
+      - [ ] Criar
+    - [ ] Aba "Aeronaves"
+      - [ ] Visualizar
+      - [ ] Criar
+    - [ ] Aba "Tripulantes"
+      - [ ] Visualizar
+      - [ ] Criar
+  - [ ] Dashboard de cliente
+    - [ ] Visualizar lista de voos
