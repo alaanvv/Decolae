@@ -8,9 +8,7 @@ export default function useLogin() {
   const { toast } = useToast();
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [loading, setLoading] = useState(false);
-  const { values, bind, setValues } = useForm({ nome: '', cpf: '', telefone: '', email: '', senha: '123456' });
-
-  const fillProfile = (type) => setValues((v) => ({ ...v, email: `${type}@decolae.com` }));
+  const { values, bind } = useForm({ nome: '', cpf: '', telefone: '', email: '', senha: '' });
 
   const submit = async (e) => {
     e.preventDefault();
@@ -31,5 +29,5 @@ export default function useLogin() {
     }
   };
 
-  return { mode, setMode, loading, bind, fillProfile, submit };
+  return { mode, setMode, loading, bind, submit };
 }
