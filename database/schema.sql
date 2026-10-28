@@ -103,6 +103,7 @@ CREATE TABLE PASSAGEM (
   status status_passagem NOT NULL,
   numero_voo varchar(10) NOT NULL,
   cpf_cliente char(11) NOT NULL,
+  UNIQUE (numero_voo, numero_assento),
   FOREIGN key (numero_voo) REFERENCES VOO (numero_voo),
   FOREIGN key (cpf_cliente) REFERENCES CLIENTE (cpf),
   CONSTRAINT check_preco CHECK (preco > 0)
