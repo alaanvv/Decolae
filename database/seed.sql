@@ -34,11 +34,11 @@ INSERT INTO USUARIO
 -- =========================================
 
 INSERT INTO TRAJETO
-(id_trajeto, cidade_origem, cidade_destino) VALUES
-(1, 'Sao Paulo', 'Rio de Janeiro'),
-(2, 'Belo Horizonte', 'Brasilia'),
-(3, 'Rio de Janeiro', 'Salvador'),
-(4, 'Brasilia', 'Sao Paulo');
+(cidade_origem, cidade_destino) VALUES
+('Sao Paulo', 'Rio de Janeiro'),
+('Belo Horizonte', 'Brasilia'),
+('Rio de Janeiro', 'Salvador'),
+('Brasilia', 'Sao Paulo');
 
 -- =========================================
 -- 4. AERONAVES
