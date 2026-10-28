@@ -90,7 +90,7 @@ export default async (app) => {
     }
   })
 
-  app.get('/login', async (request, reply) => {
+  app.post('/login', async (request, reply) => {
     const { email, senha } = request.body
 
     const result = await db.query(`
