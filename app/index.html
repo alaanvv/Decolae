@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decolae - Sistema de Gestão de Aviação</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        decolae: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-100 font-sans antialiased flex flex-col justify-between">
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app" class="min-h-screen flex flex-col">
+
+        <!-- ========================================== -->
+        <!-- 1. TELA DE LOGIN UNIFICADA                -->
+        <!-- ========================================== -->
+        <div id="view-login" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-decolae-900">
+            <div class="w-full max-w-md bg-slate-800/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-slate-700/50">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-decolae-500/20 text-decolae-500 mb-4 border border-decolae-500/30">
+                        <i class="fa-solid font-bold fa-plane-departure text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold tracking-tight text-white">DECOLAE</h1>
+                    <p class="text-sm text-slate-400 mt-1">Plataforma de Gestão & Reservas de Aviação</p>
+                </div>
+
+                <!-- Perfil Rápido Demo -->
+                <div class="mb-6 bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 text-center">Acesso Rápido para Testes:</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setLoginProfile('admin')" class="py-2 px-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600/50 text-slate-200 transition flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-user-shield text-indigo-400"></i> Admin
+                        </button>
+                        <button onclick="setLoginProfile('gerente')" class="py-2 px-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600/50 text-slate-200 transition flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-user-gear text-amber-400"></i> Gerente
+                        </button>
+                        <button onclick="setLoginProfile('cliente')" class="py-2 px-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600/50 text-slate-200 transition flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-user text-emerald-400"></i> Cliente
+                        </button>
+                    </div>
+                </div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">E-mail de Acesso</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="email" id="login-email" required placeholder="seu.email@decolae.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-decolae-500 focus:ring-1 focus:ring-decolae-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Senha</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="password" id="login-password" required value="123456" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-decolae-500 focus:ring-1 focus:ring-decolae-500">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 px-4 bg-decolae-600 hover:bg-decolae-500 text-white font-medium rounded-lg shadow-lg shadow-decolae-600/30 transition duration-200 flex items-center justify-center gap-2">
+                        <span>Entrar no Sistema</span>
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- NAVBAR (Compartilhado após login) -->
+        <header id="app-navbar" class="hidden bg-slate-800 border-b border-slate-700/80 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-decolae-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                        <i class="fa-solid fa-plane-departure"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold tracking-wider text-white">DECOLAE</span>
+                        <span id="nav-role-badge" class="ml-2 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-700 text-slate-300 border border-slate-600">Perfil</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p id="nav-user-name" class="text-sm font-semibold text-slate-100">Nome do Usuário</p>
+                        <p id="nav-user-email" class="text-xs text-slate-400">email@decolae.com</p>
+                    </div>
+                    <button onclick="logout()" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-700/50 rounded-lg transition" title="Sair">
+                        <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD CONTAINER -->
+        <main id="app-content" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- ========================================== -->
+            <!-- 2. DASHBOARD ADMINISTRADOR                -->
+            <!-- ========================================== -->
+            <div id="view-admin" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Painel do Administrador</h2>
+                        <p class="text-slate-400 text-sm mt-1">Gerencie voos ativos, horários e alocação de aeronaves do sistema.</p>
+                    </div>
+                    <button onclick="openModal('modal-create-flight')" class="px-4 py-2.5 bg-decolae-600 hover:bg-decolae-500 text-white rounded-xl font-medium text-sm transition flex items-center gap-2 shadow-lg shadow-decolae-600/20">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Novo Voo</span>
+                    </button>
+                </div>
+
+                <!-- Métricas do Admin -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700/60 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-plane-up"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase font-semibold">Total de Voos</p>
+                            <h3 id="stat-admin-total-flights" class="text-2xl font-bold text-white">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700/60 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase font-semibold">Confirmados / Ativos</p>
+                            <h3 id="stat-admin-active-flights" class="text-2xl font-bold text-white">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700/60 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase font-semibold">Programados</p>
+                            <h3 id="stat-admin-scheduled-flights" class="text-2xl font-bold text-white">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700/60 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-plane"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase font-semibold">Aeronaves Em Uso</p>
+                            <h3 id="stat-admin-planes" class="text-2xl font-bold text-white">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela com Filtro -->
+                <div class="bg-slate-800 rounded-2xl border border-slate-700/60 overflow-hidden shadow-xl">
+                    <div class="p-5 border-b border-slate-700/80 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 class="text-lg font-bold text-white">Lista Geral de Voos</h3>
+                        <div class="w-full sm:w-72 relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="admin-search" oninput="renderAdminFlights()" placeholder="Buscar por voo, origem ou destino..." class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-decolae-500">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900/60 text-slate-400 uppercase font-semibold border-b border-slate-700/50">
+                                <tr>
+                                    <th class="p-4">Código Voo</th>
+                                    <th class="p-4">Trajeto (Origem ➔ Destino)</th>
+                                    <th class="p-4">Horário Partida / Chegada</th>
+                                    <th class="p-4">Aeronave</th>
+                                    <th class="p-4">Preço (R$)</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-flights-table" class="divide-y divide-slate-700/50 text-slate-300">
+                                <!-- Linhas renderizadas via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 3. DASHBOARD GERENTE                      -->
+            <!-- ========================================== -->
+            <div id="view-gerente" class="space-y-6 hidden">
+                <div class="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60">
+                    <h2 class="text-2xl font-bold text-white">Painel do Gerente Operacional</h2>
+                    <p class="text-slate-400 text-sm mt-1">Controle de infraestrutura: trajetos rotineiros, frota de aeronaves e escalas da equipe.</p>
+                </div>
+
+                <!-- NAVEGAÇÃO POR ABAS (TABS) -->
+                <div class="flex border-b border-slate-700">
+                    <button onclick="switchGerenteTab('trajetos')" id="tab-btn-trajetos" class="gerente-tab-btn px-6 py-3 font-semibold text-sm border-b-2 border-decolae-500 text-decolae-500 transition flex items-center gap-2">
+                        <i class="fa-solid fa-route"></i> Trajetos
+                    </button>
+                    <button onclick="switchGerenteTab('aeronaves')" id="tab-btn-aeronaves" class="gerente-tab-btn px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center gap-2">
+                        <i class="fa-solid fa-plane text-sm"></i> Aeronaves
+                    </button>
+                    <button onclick="switchGerenteTab('tripulantes')" id="tab-btn-tripulantes" class="gerente-tab-btn px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center gap-2">
+                        <i class="fa-solid fa-id-card"></i> Tripulantes
+                    </button>
+                </div>
+
+                <!-- ABA 1: TRAJETOS -->
+                <div id="tab-content-trajetos" class="gerente-tab-content space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Rotas & Trajetos Cadastrados</h3>
+                        <button onclick="openModal('modal-create-route')" class="px-4 py-2 bg-decolae-600 hover:bg-decolae-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-md">
+                            <i class="fa-solid fa-plus"></i> Novo Trajeto
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700/60 overflow-hidden shadow-lg">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-900/60 text-slate-400 uppercase font-semibold border-b border-slate-700/50">
+                                    <tr>
+                                        <th class="p-4">Origem</th>
+                                        <th class="p-4">Destino</th>
+                                        <th class="p-4">Distância (km)</th>
+                                        <th class="p-4">Tempo Estimado</th>
+                                        <th class="p-4 text-center">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gerente-routes-table" class="divide-y divide-slate-700/50 text-slate-300">
+                                    <!-- Renderizado JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA 2: AERONAVES -->
+                <div id="tab-content-aeronaves" class="gerente-tab-content space-y-4 hidden">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Frota de Aeronaves</h3>
+                        <button onclick="openModal('modal-create-aircraft')" class="px-4 py-2 bg-decolae-600 hover:bg-decolae-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-md">
+                            <i class="fa-solid fa-plus"></i> Nova Aeronave
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="gerente-aircraft-cards">
+                        <!-- Cards das aeronaves via JS -->
+                    </div>
+                </div>
+
+                <!-- ABA 3: TRIPULANTES -->
+                <div id="tab-content-tripulantes" class="gerente-tab-content space-y-4 hidden">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Corpo de Tripulantes & Pilotos</h3>
+                        <button onclick="openModal('modal-create-crew')" class="px-4 py-2 bg-decolae-600 hover:bg-decolae-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-md">
+                            <i class="fa-solid fa-plus"></i> Novo Tripulante
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700/60 overflow-hidden shadow-lg">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-900/60 text-slate-400 uppercase font-semibold border-b border-slate-700/50">
+                                    <tr>
+                                        <th class="p-4">Nome</th>
+                                        <th class="p-4">Cargo / Função</th>
+                                        <th class="p-4">Matrícula / Licença ANAC</th>
+                                        <th class="p-4">Status Escala</th>
+                                        <th class="p-4 text-center">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gerente-crew-table" class="divide-y divide-slate-700/50 text-slate-300">
+                                    <!-- Renderizado JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 4. DASHBOARD CLIENTE                      -->
+            <!-- ========================================== -->
+            <div id="view-cliente" class="space-y-8 hidden">
+                <!-- Hero de Busca para o Cliente -->
+                <div class="bg-gradient-to-r from-decolae-900 via-slate-800 to-slate-900 p-8 rounded-3xl border border-slate-700/60 shadow-2xl relative overflow-hidden">
+                    <div class="max-w-2xl">
+                        <span class="inline-block px-3 py-1 bg-decolae-500/20 text-decolae-400 text-xs font-semibold rounded-full mb-3 border border-decolae-500/30">Portal do Passageiro</span>
+                        <h2 class="text-3xl font-extrabold text-white">Para onde você deseja voar hoje?</h2>
+                        <p class="text-slate-300 text-sm mt-2">Encontre voos comerciais para os principais destinos com total segurança e comodidade.</p>
+                    </div>
+
+                    <!-- Formulário de Filtro / Busca -->
+                    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-700">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Origem / Destino</label>
+                            <input type="text" id="client-search-term" oninput="renderClientFlights()" placeholder="Ex: São Paulo ou Rio de Janeiro..." class="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-decolae-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Data Mínima</label>
+                            <input type="date" id="client-filter-date" onchange="renderClientFlights()" class="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-decolae-500">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="resetClientFilters()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold transition">
+                                Limpar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Voos Disponíveis -->
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-plane-departure text-decolae-500"></i> Voos Disponíveis
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="client-flights-cards">
+                        <!-- Cards Renderizados via JS -->
+                    </div>
+                </div>
+
+                <!-- Seção Minhas Reservas -->
+                <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700/60 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-ticket text-emerald-400"></i> Minhas Reservas Confirmadas
+                    </h3>
+                    <div id="client-reservations-list" class="space-y-3">
+                        <!-- Reservas do cliente renderizadas aqui -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500 mt-auto">
+            <p>Decolae Aviação &copy; 2026 - Protótipo de Interface do Sistema</p>
+        </footer>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODAIS DE CADASTRO                        -->
+    <!-- ========================================== -->
+
+    <!-- Modal 1: Criar Voo (Admin) -->
+    <div id="modal-create-flight" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative">
+            <button onclick="closeModal('modal-create-flight')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-4">Cadastrar Novo Voo</h3>
+            <form onsubmit="handleCreateFlight(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Código do Voo</label>
+                        <input type="text" id="new-flight-code" required placeholder="Ex: DEC-1020" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Trajeto (Rota)</label>
+                        <select id="new-flight-route" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                            <!-- Opções preenchidas dinamicamente -->
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Data / Hora Partida</label>
+                        <input type="datetime-local" id="new-flight-departure" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Data / Hora Chegada</label>
+                        <input type="datetime-local" id="new-flight-arrival" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Aeronave Atribuída</label>
+                        <select id="new-flight-aircraft" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                            <!-- Preenchido via JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Preço da Passagem (R$)</label>
+                        <input type="number" id="new-flight-price" min="50" step="10" value="450" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Status Inicial</label>
+                    <select id="new-flight-status" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                        <option value="Programado">Programado</option>
+                        <option value="Confirmado">Confirmado</option>
+                        <option value="Em Voo">Em Voo</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-create-flight')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-decolae-600 hover:bg-decolae-500 text-white text-xs font-semibold rounded-lg shadow-md">Salvar Voo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Criar Trajeto (Gerente) -->
+    <div id="modal-create-route" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl p-6 relative">
+            <button onclick="closeModal('modal-create-route')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-4">Criar Novo Trajeto / Rota</h3>
+            <form onsubmit="handleCreateRoute(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Origem (Cidade/Aeroporto)</label>
+                    <input type="text" id="new-route-origin" required placeholder="Ex: São Paulo (GRU)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Destino (Cidade/Aeroporto)</label>
+                    <input type="text" id="new-route-destination" required placeholder="Ex: Salvador (SSA)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Distância (km)</label>
+                        <input type="number" id="new-route-distance" required placeholder="1450" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Tempo Estimado</label>
+                        <input type="text" id="new-route-time" required placeholder="Ex: 2h 15m" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-create-route')" class="px-4 py-2 bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-decolae-600 hover:bg-decolae-500 text-white text-xs font-semibold rounded-lg">Salvar Trajeto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: Criar Aeronave (Gerente) -->
+    <div id="modal-create-aircraft" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl p-6 relative">
+            <button onclick="closeModal('modal-create-aircraft')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-4">Cadastrar Aeronave</h3>
+            <form onsubmit="handleCreateAircraft(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Código / Matrícula da Aeronave</label>
+                    <input type="text" id="new-aircraft-code" required placeholder="Ex: PR-DEC" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Modelo da Aeronave</label>
+                    <input type="text" id="new-aircraft-model" required placeholder="Ex: Boeing 737-800 ou Airbus A320" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Fabricante</label>
+                        <input type="text" id="new-aircraft-maker" required placeholder="Ex: Embraer" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Capacidade (Assentos)</label>
+                        <input type="number" id="new-aircraft-capacity" required placeholder="180" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Status Operacional</label>
+                    <select id="new-aircraft-status" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                        <option value="Ativa">Ativa (Pronta pra Voo)</option>
+                        <option value="Em Manutenção">Em Manutenção</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-create-aircraft')" class="px-4 py-2 bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-decolae-600 hover:bg-decolae-500 text-white text-xs font-semibold rounded-lg">Cadastrar Aeronave</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 4: Criar Tripulante (Gerente) -->
+    <div id="modal-create-crew" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl p-6 relative">
+            <button onclick="closeModal('modal-create-crew')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-4">Cadastrar Tripulante</h3>
+            <form onsubmit="handleCreateCrew(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Nome Completo</label>
+                    <input type="text" id="new-crew-name" required placeholder="Ex: Capitão Carlos Silva" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Cargo / Função</label>
+                        <select id="new-crew-role" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                            <option value="Piloto / Comandante">Piloto / Comandante</option>
+                            <option value="Co-Piloto">Co-Piloto</option>
+                            <option value="Comissário(a) de Bordo">Comissário(a) de Bordo</option>
+                            <option value="Chefe de Cabine">Chefe de Cabine</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Licença ANAC / Registro</label>
+                        <input type="text" id="new-crew-license" required placeholder="Ex: ANAC-8849" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Status da Escala</label>
+                    <select id="new-crew-status" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                        <option value="Disponível">Disponível</option>
+                        <option value="Em Escala / Voo">Em Escala / Voo</option>
+                        <option value="Folga / Licença">Folga / Licença</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-create-crew')" class="px-4 py-2 bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-decolae-600 hover:bg-decolae-500 text-white text-xs font-semibold rounded-lg">Salvar Tripulante</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT & LÓGICA DO PROTÓTIPO          -->
+    <!-- ========================================== -->
+    <script>
+        // ESTADO GLOBAL DA APLICAÇÃO (DADOS SIMULADOS FICTÍCIOS)
+        let currentUser = null;
+
+        // Base de Dados Simulada (com carregamento do LocalStorage se disponível)
+        let appData = {
+            routes: [
+                { id: 1, origin: 'São Paulo (GRU)', destination: 'Rio de Janeiro (GIG)', distance: 360, time: '1h 05m' },
+                { id: 2, origin: 'Brasília (BSB)', destination: 'Salvador (SSA)', distance: 1070, time: '2h 10m' },
+                { id: 3, origin: 'Belo Horizonte (CNF)', destination: 'Belo Horizonte / Confins', distance: 520, time: '1h 20m' },
+                { id: 4, origin: 'Curitiba (CWB)', destination: 'Porto Alegre (POA)', distance: 540, time: '1h 15m' }
+            ],
+            aircrafts: [
+                { id: 1, code: 'PR-DCA', model: 'Boeing 737-800', capacity: 186, maker: 'Boeing', status: 'Ativa' },
+                { id: 2, code: 'PR-DCB', model: 'Airbus A320neo', capacity: 174, maker: 'Airbus', status: 'Ativa' },
+                { id: 3, code: 'PP-DCC', model: 'Embraer E195-E2', capacity: 136, maker: 'Embraer', status: 'Em Manutenção' }
+            ],
+            crew: [
+                { id: 1, name: 'Capitão Roberto Alves', role: 'Piloto / Comandante', license: 'ANAC-10293', status: 'Disponível' },
+                { id: 2, name: 'Fernanda Lima', role: 'Co-Piloto', license: 'ANAC-44910', status: 'Em Escala / Voo' },
+                { id: 3, name: 'Lucas Mendes', role: 'Comissário(a) de Bordo', license: 'ANAC-99201', status: 'Disponível' },
+                { id: 4, name: 'Juliana Costa', role: 'Chefe de Cabine', license: 'ANAC-33210', status: 'Folga / Licença' }
+            ],
+            flights: [
+                { 
+                    id: 1, 
+                    code: 'DEC-1001', 
+                    origin: 'São Paulo (GRU)', 
+                    destination: 'Rio de Janeiro (GIG)', 
+                    departure: '2026-11-01T08:30', 
+                    arrival: '2026-11-01T09:35', 
+                    aircraft: 'PR-DCA (Boeing 737-800)', 
+                    price: 320, 
+                    status: 'Confirmado' 
+                },
+                { 
+                    id: 2, 
+                    code: 'DEC-2045', 
+                    origin: 'Brasília (BSB)', 
+                    destination: 'Salvador (SSA)', 
+                    departure: '2026-11-02T14:15', 
+                    arrival: '2026-11-02T16:25', 
+                    aircraft: 'PR-DCB (Airbus A320neo)', 
+                    price: 580, 
+                    status: 'Programado' 
+                },
+                { 
+                    id: 3, 
+                    code: 'DEC-3099', 
+                    origin: 'Curitiba (CWB)', 
+                    destination: 'Porto Alegre (POA)', 
+                    departure: '2026-11-03T18:00', 
+                    arrival: '2026-11-03T19:15', 
+                    aircraft: 'PR-DCA (Boeing 737-800)', 
+                    price: 290, 
+                    status: 'Confirmado' 
+                }
+            ],
+            reservations: [
+                { id: 101, flightCode: 'DEC-1001', origin: 'São Paulo (GRU)', destination: 'Rio de Janeiro (GIG)', departure: '2026-11-01 08:30', seat: '12A', price: 320 }
+            ]
+        };
+
+        // INICIALIZAÇÃO DA APLICAÇÃO
+        window.onload = function() {
+            // Tentar restaurar dados do localStorage
+            const savedData = localStorage.getItem('decolae_data');
+            if (savedData) {
+                try {
+                    appData = JSON.parse(savedData);
+                } catch(e) {
+                    console.error("Erro ao carregar cache local", e);
+                }
+            }
+        };
+
+        function saveData() {
+            localStorage.setItem('decolae_data', JSON.stringify(appData));
+        }
+
+        // FUNÇÃO PARA PREENCHER CAMPOS DO LOGIN RÁPIDO
+        function setLoginProfile(type) {
+            const emailInput = document.getElementById('login-email');
+            if (type === 'admin') {
+                emailInput.value = 'admin@decolae.com';
+            } else if (type === 'gerente') {
+                emailInput.value = 'gerente@decolae.com';
+            } else if (type === 'cliente') {
+                emailInput.value = 'cliente@decolae.com';
+            }
+        }
+
+        // MANIPULAÇÃO DE LOGIN
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.toLowerCase().trim();
+
+            if (email.includes('admin')) {
+                currentUser = { name: 'Carlos Administrador', email: email, role: 'Administrador', type: 'admin' };
+            } else if (email.includes('gerente')) {
+                currentUser = { name: 'Mariana Gerente', email: email, role: 'Gerente Operacional', type: 'gerente' };
+            } else {
+                currentUser = { name: 'Gabriel Cliente', email: email, role: 'Passageiro / Cliente', type: 'cliente' };
+            }
+
+            // Atualiza Header
+            document.getElementById('nav-user-name').innerText = currentUser.name;
+            document.getElementById('nav-user-email').innerText = currentUser.email;
+            document.getElementById('nav-role-badge').innerText = currentUser.role;
+
+            // Alterna Visibilidade
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('app-navbar').classList.remove('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+
+            // Renderiza Dashboard Específica
+            showDashboard(currentUser.type);
+            showToast(`Bem-vindo(a) ao Decolae, ${currentUser.name}!`, 'success');
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('app-navbar').classList.add('hidden');
+            document.getElementById('app-content').classList.add('hidden');
+            document.getElementById('view-login').classList.remove('hidden');
+            showToast('Sessão encerrada.', 'info');
+        }
+
+        function showDashboard(type) {
+            // Oculta todas
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById('view-gerente').classList.add('hidden');
+            document.getElementById('view-cliente').classList.add('hidden');
+
+            if (type === 'admin') {
+                document.getElementById('view-admin').classList.remove('hidden');
+                renderAdminDashboard();
+            } else if (type === 'gerente') {
+                document.getElementById('view-gerente').classList.remove('hidden');
+                renderGerenteDashboard();
+            } else if (type === 'cliente') {
+                document.getElementById('view-cliente').classList.remove('hidden');
+                renderClienteDashboard();
+            }
+        }
+
+
+        // ========================================== -->
+        // DADOS & RENDERIZAÇÃO: ADMIN
+        // ========================================== -->
+        function renderAdminDashboard() {
+            renderAdminStats();
+            renderAdminFlights();
+            populateFlightFormDropdowns();
+        }
+
+        function renderAdminStats() {
+            document.getElementById('stat-admin-total-flights').innerText = appData.flights.length;
+            document.getElementById('stat-admin-active-flights').innerText = appData.flights.filter(f => f.status === 'Confirmado' || f.status === 'Em Voo').length;
+            document.getElementById('stat-admin-scheduled-flights').innerText = appData.flights.filter(f => f.status === 'Programado').length;
+            document.getElementById('stat-admin-planes').innerText = appData.aircrafts.filter(a => a.status === 'Ativa').length;
+        }
+
+        function renderAdminFlights() {
+            const searchTerm = document.getElementById('admin-search')?.value.toLowerCase() || '';
+            const tbody = document.getElementById('admin-flights-table');
+            tbody.innerHTML = '';
+
+            const filtered = appData.flights.filter(f => 
+                f.code.toLowerCase().includes(searchTerm) || 
+                f.origin.toLowerCase().includes(searchTerm) || 
+                f.destination.toLowerCase().includes(searchTerm)
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-slate-500">Nenhum voo encontrado.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(f => {
+                let badgeClass = 'bg-blue-500/10 text-blue-400 border-blue-500/30';
+                if (f.status === 'Confirmado') badgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
+                if (f.status === 'Em Voo') badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/30';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/30 transition';
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-white">${f.code}</td>
+                    <td class="p-4">${f.origin} <i class="fa-solid fa-arrow-right text-slate-500 mx-1 text-xs"></i> ${f.destination}</td>
+                    <td class="p-4">${formatDate(f.departure)} <br><span class="text-slate-500 text-[10px]">Até ${formatDate(f.arrival)}</span></td>
+                    <td class="p-4 text-slate-400">${f.aircraft}</td>
+                    <td class="p-4 font-semibold text-emerald-400">R$ ${f.price.toFixed(2)}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${badgeClass}">
+                            ${f.status}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteFlight(${f.id})" class="text-slate-500 hover:text-rose-400 transition" title="Excluir Voo">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function populateFlightFormDropdowns() {
+            const routeSelect = document.getElementById('new-flight-route');
+            const aircraftSelect = document.getElementById('new-flight-aircraft');
+
+            routeSelect.innerHTML = appData.routes.map(r => `<option value="${r.origin} ➔ ${r.destination}">${r.origin} ➔ ${r.destination}</option>`).join('');
+            aircraftSelect.innerHTML = appData.aircrafts.filter(a => a.status === 'Ativa').map(a => `<option value="${a.code} (${a.model})">${a.code} - ${a.model}</option>`).join('');
+        }
+
+        function handleCreateFlight(e) {
+            e.preventDefault();
+            const routeVal = document.getElementById('new-flight-route').value.split(' ➔ ');
+
+            const newFlight = {
+                id: Date.now(),
+                code: document.getElementById('new-flight-code').value.toUpperCase(),
+                origin: routeVal[0],
+                destination: routeVal[1],
+                departure: document.getElementById('new-flight-departure').value,
+                arrival: document.getElementById('new-flight-arrival').value,
+                aircraft: document.getElementById('new-flight-aircraft').value,
+                price: parseFloat(document.getElementById('new-flight-price').value),
+                status: document.getElementById('new-flight-status').value
+            };
+
+            appData.flights.push(newFlight);
+            saveData();
+            closeModal('modal-create-flight');
+            renderAdminDashboard();
+            showToast(`Voo ${newFlight.code} criado com sucesso!`, 'success');
+        }
+
+        function deleteFlight(id) {
+            if (confirm('Deseja realmente remover este voo do sistema?')) {
+                appData.flights = appData.flights.filter(f => f.id !== id);
+                saveData();
+                renderAdminDashboard();
+                showToast('Voo removido.', 'info');
+            }
+        }
+
+
+        // ========================================== -->
+        // DADOS & RENDERIZAÇÃO: GERENTE
+        // ========================================== -->
+        function renderGerenteDashboard() {
+            renderGerenteRoutes();
+            renderGerenteAircrafts();
+            renderGerenteCrew();
+        }
+
+        function switchGerenteTab(tab) {
+            // Atualiza botões
+            document.querySelectorAll('.gerente-tab-btn').forEach(btn => {
+                btn.classList.remove('border-decolae-500', 'text-decolae-500');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            });
+            document.getElementById(`tab-btn-${tab}`).classList.remove('border-transparent', 'text-slate-400');
+            document.getElementById(`tab-btn-${tab}`).classList.add('border-decolae-500', 'text-decolae-500');
+
+            // Alterna conteúdos
+            document.querySelectorAll('.gerente-tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
+        }
+
+        function renderGerenteRoutes() {
+            const tbody = document.getElementById('gerente-routes-table');
+            tbody.innerHTML = '';
+
+            appData.routes.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/30 transition';
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-white">${r.origin}</td>
+                    <td class="p-4 font-semibold text-white">${r.destination}</td>
+                    <td class="p-4">${r.distance} km</td>
+                    <td class="p-4 text-decolae-400 font-medium">${r.time}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteRoute(${r.id})" class="text-slate-500 hover:text-rose-400 transition"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleCreateRoute(e) {
+            e.preventDefault();
+            const newRoute = {
+                id: Date.now(),
+                origin: document.getElementById('new-route-origin').value,
+                destination: document.getElementById('new-route-destination').value,
+                distance: parseInt(document.getElementById('new-route-distance').value),
+                time: document.getElementById('new-route-time').value
+            };
+
+            appData.routes.push(newRoute);
+            saveData();
+            closeModal('modal-create-route');
+            renderGerenteRoutes();
+            showToast('Novo trajeto cadastrado!', 'success');
+        }
+
+        function deleteRoute(id) {
+            if (confirm('Remover este trajeto?')) {
+                appData.routes = appData.routes.filter(r => r.id !== id);
+                saveData();
+                renderGerenteRoutes();
+                showToast('Trajeto excluído.', 'info');
+            }
+        }
+
+        function renderGerenteAircrafts() {
+            const container = document.getElementById('gerente-aircraft-cards');
+            container.innerHTML = '';
+
+            appData.aircrafts.forEach(a => {
+                const isMaintenance = a.status === 'Em Manutenção';
+                const card = document.createElement('div');
+                card.className = 'bg-slate-800 p-5 rounded-2xl border border-slate-700/60 flex flex-col justify-between space-y-4';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-lg font-bold text-white tracking-wider">${a.code}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${isMaintenance ? 'bg-rose-500/10 text-rose-400 border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}">
+                                ${a.status}
+                            </span>
+                        </div>
+                        <h4 class="text-sm font-semibold text-slate-300 mt-1">${a.model}</h4>
+                        <p class="text-xs text-slate-400">Fabricante: ${a.maker}</p>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-700/50 flex justify-between items-center text-xs">
+                        <span class="text-slate-400"><i class="fa-solid fa-users text-decolae-400 mr-1"></i> ${a.capacity} Assentos</span>
+                        <button onclick="toggleAircraftStatus(${a.id})" class="text-xs text-decolae-400 hover:underline">Alternar Status</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function handleCreateAircraft(e) {
+            e.preventDefault();
+            const newAircraft = {
+                id: Date.now(),
+                code: document.getElementById('new-aircraft-code').value.toUpperCase(),
+                model: document.getElementById('new-aircraft-model').value,
+                maker: document.getElementById('new-aircraft-maker').value,
+                capacity: parseInt(document.getElementById('new-aircraft-capacity').value),
+                status: document.getElementById('new-aircraft-status').value
+            };
+
+            appData.aircrafts.push(newAircraft);
+            saveData();
+            closeModal('modal-create-aircraft');
+            renderGerenteAircrafts();
+            showToast('Aeronave adicionada à frota!', 'success');
+        }
+
+        function toggleAircraftStatus(id) {
+            const item = appData.aircrafts.find(a => a.id === id);
+            if (item) {
+                item.status = item.status === 'Ativa' ? 'Em Manutenção' : 'Ativa';
+                saveData();
+                renderGerenteAircrafts();
+                showToast(`Status da aeronave ${item.code} atualizado.`, 'info');
+            }
+        }
+
+        function renderGerenteCrew() {
+            const tbody = document.getElementById('gerente-crew-table');
+            tbody.innerHTML = '';
+
+            appData.crew.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/30 transition';
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-white">${c.name}</td>
+                    <td class="p-4">${c.role}</td>
+                    <td class="p-4 font-mono text-xs text-slate-400">${c.license}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-700 text-slate-300">
+                            ${c.status}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteCrew(${c.id})" class="text-slate-500 hover:text-rose-400 transition"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleCreateCrew(e) {
+            e.preventDefault();
+            const newCrew = {
+                id: Date.now(),
+                name: document.getElementById('new-crew-name').value,
+                role: document.getElementById('new-crew-role').value,
+                license: document.getElementById('new-crew-license').value.toUpperCase(),
+                status: document.getElementById('new-crew-status').value
+            };
+
+            appData.crew.push(newCrew);
+            saveData();
+            closeModal('modal-create-crew');
+            renderGerenteCrew();
+            showToast('Novo tripulante cadastrado!', 'success');
+        }
+
+        function deleteCrew(id) {
+            if (confirm('Remover este integrante da equipe?')) {
+                appData.crew = appData.crew.filter(c => c.id !== id);
+                saveData();
+                renderGerenteCrew();
+                showToast('Tripulante removido.', 'info');
+            }
+        }
+
+
+        // ========================================== -->
+        // DADOS & RENDERIZAÇÃO: CLIENTE
+        // ========================================== -->
+        function renderClienteDashboard() {
+            renderClientFlights();
+            renderClientReservations();
+        }
+
+        function renderClientFlights() {
+            const container = document.getElementById('client-flights-cards');
+            const searchVal = document.getElementById('client-search-term')?.value.toLowerCase() || '';
+            const dateVal = document.getElementById('client-filter-date')?.value || '';
+
+            container.innerHTML = '';
+
+            const filtered = appData.flights.filter(f => {
+                const matchesText = f.origin.toLowerCase().includes(searchVal) || f.destination.toLowerCase().includes(searchVal) || f.code.toLowerCase().includes(searchVal);
+                const matchesDate = dateVal ? f.departure.startsWith(dateVal) : true;
+                return matchesText && matchesDate;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-2 bg-slate-800 p-8 rounded-2xl text-center text-slate-400">Nenhum voo disponível para os critérios informados.</div>`;
+                return;
+            }
+
+            filtered.forEach(f => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-lg flex flex-col justify-between space-y-4 hover:border-decolae-500/50 transition';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-decolae-500/10 text-decolae-400 border border-decolae-500/20">${f.code}</span>
+                            <span class="text-xs text-slate-400"><i class="fa-solid fa-plane text-slate-500 mr-1"></i> ${f.aircraft}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between my-2">
+                            <div>
+                                <p class="text-base font-bold text-white">${f.origin}</p>
+                                <p class="text-xs text-slate-400">${formatDate(f.departure)}</p>
+                            </div>
+                            <div class="flex flex-col items-center px-4">
+                                <i class="fa-solid fa-plane text-slate-500 text-sm"></i>
+                                <div class="w-16 h-0.5 bg-slate-700 my-1"></div>
+                                <span class="text-[10px] text-slate-400">Direto</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-base font-bold text-white">${f.destination}</p>
+                                <p class="text-xs text-slate-400">${formatDate(f.arrival)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-700/60 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] uppercase text-slate-400 block font-semibold">Valor da Passagem</span>
+                            <span class="text-xl font-extrabold text-emerald-400">R$ ${f.price.toFixed(2)}</span>
+                        </div>
+                        <button onclick="bookSeat(${f.id})" class="px-5 py-2.5 bg-decolae-600 hover:bg-decolae-500 text-white font-medium rounded-xl text-xs transition shadow-md shadow-decolae-600/20 flex items-center gap-2">
+                            <i class="fa-solid fa-chair text-xs"></i>
+                            <span>Reservar Assento</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function resetClientFilters() {
+            document.getElementById('client-search-term').value = '';
+            document.getElementById('client-filter-date').value = '';
+            renderClientFlights();
+        }
+
+        function bookSeat(flightId) {
+            const flight = appData.flights.find(f => f.id === flightId);
+            if (!flight) return;
+
+            // Gera assento aleatório Ex: 14B
+            const randomRow = Math.floor(Math.random() * 25) + 1;
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+            const randomSeat = `${randomRow}${letters[Math.floor(Math.random() * letters.length)]}`;
+
+            const newReservation = {
+                id: Date.now(),
+                flightCode: flight.code,
+                origin: flight.origin,
+                destination: flight.destination,
+                departure: formatDate(flight.departure),
+                seat: randomSeat,
+                price: flight.price
+            };
+
+            appData.reservations.push(newReservation);
+            saveData();
+            renderClientReservations();
+            showToast(`Assento ${randomSeat} reservado com sucesso para o voo ${flight.code}!`, 'success');
+        }
+
+        function renderClientReservations() {
+            const container = document.getElementById('client-reservations-list');
+            container.innerHTML = '';
+
+            if (appData.reservations.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 text-xs py-4 text-center">Você ainda não possui bilhetes ou reservas ativas.</p>`;
+                return;
+            }
+
+            appData.reservations.forEach(r => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4';
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-lg">
+                            <i class="fa-solid fa-ticket"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-bold text-white">${r.flightCode}</span>
+                                <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Assento ${r.seat}</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-0.5">${r.origin} ➔ ${r.destination}</p>
+                            <p class="text-[10px] text-slate-400">Data: ${r.departure}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
+                        <span class="text-sm font-bold text-emerald-400">R$ ${r.price.toFixed(2)}</span>
+                        <button onclick="cancelReservation(${r.id})" class="text-xs text-rose-400 hover:text-rose-300 hover:underline">Cancelar Reserva</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function cancelReservation(id) {
+            if (confirm('Deseja realmente cancelar esta reserva?')) {
+                appData.reservations = appData.reservations.filter(r => r.id !== id);
+                saveData();
+                renderClientReservations();
+                showToast('Reserva cancelada.', 'info');
+            }
+        }
+
+
+        // ========================================== -->
+        // UTILITÁRIOS & MODAIS
+        // ========================================== -->
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const date = new Date(dateStr);
+                return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } catch(e) {
+                return dateStr;
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-slate-800 border-slate-600 text-slate-200';
+            let icon = 'fa-circle-info text-blue-400';
+            
+            if (type === 'success') {
+                bgClass = 'bg-slate-800 border-emerald-500/50 text-white';
+                icon = 'fa-circle-check text-emerald-400';
+            } else if (type === 'error') {
+                bgClass = 'bg-slate-800 border-rose-500/50 text-white';
+                icon = 'fa-triangle-exclamation text-rose-400';
+            }
+
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl text-xs font-medium transition duration-300 transform translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
