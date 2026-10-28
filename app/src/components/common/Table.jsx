@@ -5,11 +5,7 @@ export default function Table({ headers, header, isEmpty = false, empty, childre
       <div className="overflow-x-auto custom-scrollbar">
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-900/60 text-slate-400 uppercase font-semibold border-b border-slate-700/50">
-            <tr>
-              {headers.map((h, i) => (
-                <th key={h} className={`p-4 ${i === headers.length - 1 ? 'text-center' : ''}`}>{h}</th>
-              ))}
-            </tr>
+            <tr>{headers.map((h) => <th key={h} className="p-4">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-slate-700/50 text-slate-300">
             {isEmpty ? (
@@ -21,9 +17,3 @@ export default function Table({ headers, header, isEmpty = false, empty, childre
     </div>
   );
 }
-
-export const DeleteButton = ({ onClick, title }) => (
-  <button onClick={onClick} title={title} className="text-slate-500 hover:text-rose-400 transition">
-    <i className="fa-solid fa-trash" />
-  </button>
-);

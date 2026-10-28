@@ -1,20 +1,35 @@
 import { useState } from 'react';
+import useForm from '../../hooks/useForm';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 export default function useLogin() {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const { toast } = useToast();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('123456');
+  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [loading, setLoading] = useState(false);
+  const { values, bind, setValues } = useForm({ nome: '', cpf: '', telefone: '', email: '', senha: '123456' });
 
-  const fillProfile = (type) => setEmail(`${type}@decolae.com`);
+  const fillProfile = (type) => setValues((v) => ({ ...v, email: `${type}@decolae.com` }));
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    const user = login(email);
-    toast(`Bem-vindo(a) ao Decolae, ${user.name}!`, 'success');
+    setLoading(true);
+    try {
+      if (mode === 'register') {
+        await register(values);
+        toast('Cadastro realizado! Faça login para continuar.', 'success');
+        setMode('login');
+      } else {
+        const user = await login(values.email, values.senha);
+        toast(`Bem-vindo(a) ao Decolae, ${user.name}!`, 'success');
+      }
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return { email, setEmail, password, setPassword, fillProfile, submit };
+  return { mode, setMode, loading, bind, fillProfile, submit };
 }

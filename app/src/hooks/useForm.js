@@ -7,5 +7,5 @@ export default function useForm(initial) {
     value: values[name] ?? '',
     onChange: (e) => setValues((v) => ({ ...v, [name]: e.target.value })),
   });
-  return { values, bind };
+  return { values, bind, setValues };
 }

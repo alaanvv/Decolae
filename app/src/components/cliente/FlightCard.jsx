@@ -1,4 +1,5 @@
 import { formatDate } from '../../utils/formatDate';
+import { statusInfo } from '../../utils/flightStatus';
 import useReservations from '../../hooks/useReservations';
 
 export default function FlightCard({ flight: f }) {
@@ -27,10 +28,7 @@ export default function FlightCard({ flight: f }) {
         </div>
       </div>
       <div className="pt-4 border-t border-slate-700/60 flex items-center justify-between">
-        <div>
-          <span className="text-[10px] uppercase text-slate-400 block font-semibold">Valor da Passagem</span>
-          <span className="text-xl font-extrabold text-emerald-400">R$ {f.price.toFixed(2)}</span>
-        </div>
+        <span className="text-[10px] uppercase text-slate-400 font-semibold">{statusInfo(f.status).label}</span>
         <button onClick={() => book(f)} className="px-5 py-2.5 bg-decolae-600 hover:bg-decolae-500 text-white font-medium rounded-xl text-xs transition shadow-md shadow-decolae-600/20 flex items-center gap-2">
           <i className="fa-solid fa-chair text-xs" />
           <span>Reservar Assento</span>

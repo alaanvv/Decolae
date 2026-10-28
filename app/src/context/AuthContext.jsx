@@ -1,28 +1,30 @@
 import { createContext, useContext, useState } from 'react';
+import { authApi } from '../services/api';
 
-const PROFILES = {
-  admin: { name: 'Carlos Administrador', role: 'Administrador' },
-  gerente: { name: 'Mariana Gerente', role: 'Gerente Operacional' },
-  cliente: { name: 'Gabriel Cliente', role: 'Passageiro / Cliente' },
+const ROLES = {
+  ADMINISTRADOR: { type: 'admin', role: 'Administrador' },
+  GERENTE: { type: 'gerente', role: 'Gerente Operacional' },
+  CLIENTE: { type: 'cliente', role: 'Passageiro / Cliente' },
 };
-
-const detectType = (email) =>
-  email.includes('admin') ? 'admin' : email.includes('gerente') ? 'gerente' : 'cliente';
 
 const AuthCtx = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
-  const login = (rawEmail) => {
-    const email = rawEmail.toLowerCase().trim();
-    const type = detectType(email);
-    const next = { ...PROFILES[type], email, type };
+  const login = async (email, senha) => {
+    const u = await authApi.login(email.trim(), senha);
+    const tipo = String(u.tipo ?? u.tipo_usuario ?? 'CLIENTE').toUpperCase();
+    const next = { ...(ROLES[tipo] || ROLES.CLIENTE), name: u.nome, email: u.email ?? email };
     setUser(next);
     return next;
   };
 
-  return <AuthCtx.Provider value={{ user, login, logout: () => setUser(null) }}>{children}</AuthCtx.Provider>;
+  return (
+    <AuthCtx.Provider value={{ user, login, register: authApi.register, logout: () => setUser(null) }}>
+      {children}
+    </AuthCtx.Provider>
+  );
 }
 
 export const useAuth = () => useContext(AuthCtx);

@@ -25,7 +25,6 @@ export default function ReservationList() {
               </div>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
-              <span className="text-sm font-bold text-emerald-400">R$ {r.price.toFixed(2)}</span>
               <button onClick={() => cancel(r.id)} className="text-xs text-rose-400 hover:text-rose-300 hover:underline">Cancelar Reserva</button>
             </div>
           </div>

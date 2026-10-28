@@ -1,17 +1,13 @@
 import useForm from '../../hooks/useForm';
 import { useData } from '../../context/DataContext';
-import { useToast } from '../../context/ToastContext';
 
 export default function useRouteForm(onClose) {
-  const { add } = useData();
-  const { toast } = useToast();
-  const { values, bind } = useForm({ origin: '', destination: '', distance: '', time: '' });
+  const { create } = useData();
+  const { values, bind } = useForm({ origin: '', destination: '' });
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    add('routes', { id: Date.now(), ...values, distance: parseInt(values.distance) });
-    onClose();
-    toast('Novo trajeto cadastrado!', 'success');
+    if (await create('routes', values, 'Novo trajeto cadastrado!')) onClose();
   };
 
   return { bind, submit };

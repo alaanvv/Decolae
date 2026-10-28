@@ -1,17 +1,13 @@
 import useForm from '../../hooks/useForm';
 import { useData } from '../../context/DataContext';
-import { useToast } from '../../context/ToastContext';
 
 export default function useAircraftForm(onClose) {
-  const { add } = useData();
-  const { toast } = useToast();
-  const { values, bind } = useForm({ code: '', model: '', maker: '', capacity: '', status: 'Ativa' });
+  const { create } = useData();
+  const { values, bind } = useForm({ code: '', model: '', capacity: '' });
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    add('aircrafts', { id: Date.now(), ...values, code: values.code.toUpperCase(), capacity: parseInt(values.capacity) });
-    onClose();
-    toast('Aeronave adicionada à frota!', 'success');
+    if (await create('aircrafts', values, 'Aeronave adicionada à frota!')) onClose();
   };
 
   return { bind, submit };

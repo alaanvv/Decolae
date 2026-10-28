@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useData } from '../../context/DataContext';
+import { isBookable } from '../../utils/flightStatus';
 
 const EMPTY = { term: '', date: '' };
+const localDate = (iso) => new Date(iso).toLocaleDateString('sv-SE'); // YYYY-MM-DD no fuso local
 
 export default function useClienteFilters() {
   const { data } = useData();
@@ -13,8 +15,9 @@ export default function useClienteFilters() {
   const term = filters.term.toLowerCase();
   const flights = data.flights.filter(
     (f) =>
-      [f.origin, f.destination, f.code].some((s) => s.toLowerCase().includes(term)) &&
-      (!filters.date || f.departure.startsWith(filters.date))
+      isBookable(f.status) &&
+      [f.origin, f.destination, f.code].some((s) => String(s ?? '').toLowerCase().includes(term)) &&
+      (!filters.date || localDate(f.departure) >= filters.date)
   );
 
   return { filters, setFilter, reset, flights };
