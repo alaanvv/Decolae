@@ -1,167 +1,73 @@
-# UNIVERSIDADE FEDERAL DE SÃO JOÃO DEL REI
-
-## Departamento de Ciência da Computação
-
-### Bacharelado em Ciência da Computação
-
-### Banco de Dados — 2º semestre de 2026
-
-**Professor:** Leonardo Chaves Dutra da Rocha
-
 # Decolaê — Relatório de Evolução e Implementação do Banco de Dados
 
-**Segunda entrega — Trabalho Prático, Opção 1**
+**Segunda entrega — TP Opção 1**
 
-**Integrantes:** [Nome dos integrantes do grupo]
+**Integrantes:** Alan Vale
 
-**Data:** Outubro de 2026
+Esse relatório apresenta a evolução da modelagem conceitual, a estrutura do banco de dados, o povoamento inicial e o protótipo da interface.
 
 ---
 
-# 1. Introdução
+# Evolução da modelagem
 
-Este relatório apresenta a evolução do projeto Decolaê, desenvolvido como parte do trabalho prático da disciplina de Banco de Dados. O sistema tem como objetivo gerenciar as principais operações de uma empresa de aviação doméstica, incluindo o cadastro de trajetos, aeronaves e tripulantes, a criação de voos e a comercialização de passagens.
+## Modelagem inicial
 
-O projeto contempla três tipos principais de usuários: gerente, administrador e cliente. Cada perfil possui responsabilidades específicas, que são refletidas na organização dos dados e nas funcionalidades da aplicação.
+Pra primeira entrega do trabalho fizemos um levantamento dos requisitos do sistema, um modelo entidade-relacionamento e o mapeamento para o modelo relacional.
 
-Nesta etapa, são apresentados os resultados da evolução da modelagem conceitual, as decisões tomadas durante o desenvolvimento, a estrutura do banco de dados implementado em PostgreSQL, as regras de negócio contempladas, o povoamento inicial e o protótipo da interface.
+![DER](diagramas/DER_INICIAL.drawio.png)
 
-O relatório também registra as funcionalidades que ainda precisam ser desenvolvidas ou aprimoradas para a entrega final.
+## Discussão entre os grupos
 
-# 2. Evolução da modelagem
+Durante as discussões sobre o trabalho foram levantados dois pontos:
 
-## 2.1. Modelagem inicial
+1. Cardinalidades incorreta
 
-Na primeira etapa do trabalho, foi realizado o levantamento dos requisitos do sistema, seguido pela elaboração do modelo entidade-relacionamento (DER) e pelo mapeamento para o modelo relacional.
+A cardinalidade do relacionamento entre passagens e voos indicava que uma passagem podia ser referente a mais de um voo, o que não foi intencional e foi corrigido.
 
-A modelagem inicial buscou representar as principais entidades envolvidas no funcionamento da empresa, seus atributos e os relacionamentos necessários para gerenciar voos e passagens.
+2. Falta de representação de responsabilidades
 
-As entidades inicialmente consideradas foram Trajeto, Aeronave, Tripulante, Voo, Cliente, Passagem e Usuário.
+Foi sugerido que criasse especializações do tipo entidade "Usuário" para representar os diferentes tipos de usuário dentro do sistema, e então com essas especializações criasse relações como por exemplo: "administrador -> cria -> voo", "gerente -> cadastra -> trajeto".
+Escolhemos não aderir a essa sugestão.  
+Achamos que isso não precisava ser representado nesse diagrama pois parece mais ser parte da implementação, e não tanto do domínio de dados.  
 
-**Figura 1 — Diagrama entidade-relacionamento inicial**
+Por fora das sugestões, removemos alguns IDs que estavam servindo de chave onde outros atributos poderiam ser a chave, por exemplo, o cliente possuía `cliente_id`, enquanto o `cpf` já bastava como chave primária.  
+Também foi notado que a modelagem permitia o reaproveitamento de trajetos, porém as datas de partida e chegada do voo ficavam no próprio trajeto, dificultando o reuso. Foi ajustado pra que essas datas pertençam ao voo.
 
-[Inserir imagem: `diagramas/DER_INICIAL.drawio.png`]
+## Modelo atualizado
 
-O modelo relacional correspondente está documentado em [MR_INICIAL.md](modelos-relacionais/MR_INICIAL.md).
+Após as revisões, o diagrama entidade-relacionamento foi atualizado incorporando os ajustes considerados adequados pelo grupo.
 
-## 2.2. Dinâmica de discussão entre os grupos
+![DER](diagramas/DER_AJUSTES.drawio.png)
 
-Durante as atividades relacionadas à primeira entrega, os grupos trocaram seus modelos entidade-relacionamento para discutir as soluções propostas e compartilhar sugestões de melhoria.
+---
 
-A dinâmica permitiu analisar diferentes formas de representar os requisitos do sistema, identificar possíveis inconsistências e refletir sobre as decisões de modelagem adotadas.
+# Implementação do banco de dados
 
-A partir das discussões, foram identificados pontos que mereciam revisão, além de ideias que poderiam contribuir para o aperfeiçoamento do projeto.
+O banco de dados foi implementado utilizando **PostgreSQL**.
 
-### 2.2.1. Cardinalidade entre passagem e voo
+A implementação usa definição de tipos, chaves primárias, chaves estrangeiras, restrições de integridade e *triggers* pra garantir determinadas regras de negócio.
 
-Foi identificada uma inconsistência na cardinalidade do relacionamento entre Passagem e Voo. A representação anterior permitia interpretar que uma mesma passagem poderia estar associada a mais de um voo, comportamento que não correspondia ao funcionamento pretendido.
-
-A modelagem foi corrigida para estabelecer que cada passagem está associada a um único voo, enquanto um voo pode possuir diversas passagens.
-
-Essa alteração torna a representação mais coerente com o processo de venda de passagens e com as regras de negócio do sistema.
-
-### 2.2.2. Representação das responsabilidades dos usuários
-
-Durante as discussões, foi sugerido representar os diferentes tipos de usuário por meio de especializações da entidade Usuário. A partir dessas especializações, poderiam ser estabelecidos relacionamentos que representassem responsabilidades, como o administrador criando voos e o gerente cadastrando trajetos.
-
-O grupo optou por não incorporar essa sugestão ao modelo conceitual.
-
-Essa decisão foi motivada pela distinção entre a representação dos dados do domínio e a representação das responsabilidades operacionais de cada perfil. Na modelagem adotada, o tipo de usuário é um atributo da entidade Usuário, enquanto as permissões e as operações disponíveis para cada perfil são tratadas na aplicação.
-
-Dessa forma, considerou-se que a especialização não era necessária para representar os dados fundamentais do sistema. A decisão não impede que as responsabilidades sejam implementadas e controladas posteriormente na interface e na camada de aplicação.
-
-### 2.2.3. Revisão das chaves das entidades
-
-Além das sugestões recebidas, o grupo revisou os identificadores utilizados na modelagem. Alguns atributos que haviam sido representados por identificadores artificiais poderiam ser utilizados diretamente como chaves, por possuírem características adequadas de identificação no contexto do projeto.
-
-Essa revisão buscou evitar a introdução de identificadores desnecessários e aproximar o modelo das características dos dados representados.
-
-Entretanto, a escolha de uma chave deve considerar sua unicidade e estabilidade. Por esse motivo, a implementação final não elimina identificadores artificiais indiscriminadamente: a entidade Trajeto, por exemplo, utiliza um identificador próprio.
-
-### 2.2.4. Separação entre trajeto e voo
-
-Foi identificado que a modelagem inicial permitia o reaproveitamento de trajetos, mas mantinha as datas e os horários previstos de partida e chegada associados ao próprio trajeto.
-
-Essa organização dificultava a representação de diferentes voos que utilizassem o mesmo trajeto em datas e horários distintos.
-
-Para resolver o problema, as previsões de partida e chegada foram transferidas para a entidade Voo. Assim, o trajeto passou a representar a ligação entre as cidades de origem e destino, enquanto cada voo representa uma ocorrência específica dessa operação, com seus próprios horários, aeronave e status.
-
-Essa separação melhora a reutilização dos trajetos e evita a repetição desnecessária de informações.
-
-## 2.3. Modelo entidade-relacionamento atualizado
-
-Após as revisões, foi elaborado um novo diagrama entidade-relacionamento, incorporando os ajustes considerados adequados pelo grupo.
-
-**Figura 2 — Diagrama entidade-relacionamento atualizado**
-
-[Inserir imagem: `diagramas/DER_AJUSTES.drawio.png`]
-
-O modelo relacional atualizado está documentado em [MR_AJUSTES.md](modelos-relacionais/MR_AJUSTES.md).
-
-As principais alterações foram a correção das cardinalidades, a revisão das chaves e a separação entre os dados permanentes de um trajeto e os dados específicos de cada voo.
-
-# 3. Levantamento de requisitos
-
-O sistema foi projetado para atender às necessidades de três perfis principais de usuários.
-
-## 3.1. Gerente
-
-O gerente é responsável pelo cadastro e pela manutenção das informações básicas da empresa. Suas operações incluem:
-
-- Cadastrar, consultar, alterar e remover trajetos.
-- Cadastrar, consultar, alterar e remover aeronaves.
-- Cadastrar, consultar, alterar e remover membros da tripulação.
-
-## 3.2. Administrador
-
-O administrador é responsável pela criação e pelo gerenciamento dos voos. Para isso, deve associar cada voo a um trajeto, a uma aeronave e aos profissionais que compõem sua tripulação.
-
-O sistema deve exigir, no mínimo, um comandante, um copiloto e dois comissários para que um voo seja programado.
-
-Também devem ser consideradas restrições relativas à disponibilidade das aeronaves e à compatibilidade das escalas dos tripulantes.
-
-## 3.3. Cliente
-
-O cliente pode consultar os voos disponíveis, visualizar suas informações e adquirir passagens.
-
-Entre as informações relevantes estão a origem, o destino, os horários previstos, a aeronave e a quantidade de assentos disponíveis.
-
-O sistema deve impedir a venda de passagens acima da capacidade da aeronave, a duplicidade de ocupação de assentos e a compra de passagens incompatíveis com os horários de outros voos do cliente.
-
-# 4. Implementação do banco de dados
-
-## 4.1. Tecnologia utilizada
-
-O banco de dados do projeto foi implementado utilizando PostgreSQL. A estrutura está organizada no schema `decolae`, responsável por agrupar as tabelas e os demais objetos relacionados ao sistema.
-
-A implementação utiliza tipos enumerados, chaves primárias, chaves estrangeiras, restrições de integridade e mecanismos de programação no próprio banco de dados para aplicar determinadas regras de negócio.
-
-## 4.2. Estrutura das tabelas
+## Tabelas
 
 O banco de dados contém oito tabelas principais.
 
 | Tabela | Finalidade |
 |---|---|
-| `CLIENTE` | Armazena os dados de identificação e contato dos clientes. |
-| `USUARIO` | Armazena as credenciais, os nomes e os tipos de usuário. |
-| `TRAJETO` | Representa as ligações entre cidades de origem e destino. |
-| `AERONAVE` | Registra os modelos, as identificações, as capacidades e os status das aeronaves. |
-| `TRIPULANTE` | Armazena os dados dos profissionais da tripulação. |
-| `VOO` | Registra os voos, seus horários, status, trajetos e aeronaves. |
-| `PASSAGEM` | Representa as passagens emitidas, seus assentos, preços, clientes e voos. |
-| `TRIPULACAO_VOO` | Associa os tripulantes aos voos e registra suas funções em cada operação. |
+| `cliente` | Armazena os dados de identificação e contato dos clientes. |
+| `usuario` | Armazena as credenciais, os nomes e os tipos de usuário. |
+| `trajeto` | Representa as ligações entre cidades de origem e destino. |
+| `aeronave` | Registra os modelos, as identificações, as capacidades e os status das aeronaves. |
+| `tripulante` | Armazena os dados dos profissionais da tripulação. |
+| `voo` | Registra os voos, seus horários, status, trajetos e aeronaves. |
+| `passagem` | Representa as passagens emitidas, seus assentos, preços, clientes e voos. |
+| `tripulacao_voo` | Associa os tripulantes aos voos e registra suas funções em cada operação. |
 
-A separação entre Usuário e Cliente permite distinguir as informações de autenticação das informações relacionadas à identificação do cliente. Um usuário do tipo cliente deve estar associado a um registro em `CLIENTE`.
+A separação entre usuário e cliente permite distinguir as informações de autenticação das informações relacionadas à identificação do cliente.  
+Um usuário do tipo cliente deve estar associado a um registro em `cliente`.
 
-A tabela `TRIPULACAO_VOO` representa um relacionamento muitos-para-muitos entre voos e tripulantes. Essa estrutura permite que um profissional seja associado a diferentes voos, sem que seus dados cadastrais precisem ser repetidos.
+A tabela `tripulacao_voo` representa o relacionamento `n:m` entre voos e tripulantes, armazenando a função do tripulante no voo.
 
-A função desempenhada pelo profissional em cada voo é armazenada no atributo `funcao_no_voo`.
-
-## 4.3. Chaves e integridade referencial
-
-As tabelas utilizam chaves primárias para identificar seus registros e chaves estrangeiras para manter a consistência dos relacionamentos.
-
-Entre as principais restrições implementadas estão:
+## Chaves e integridade referencial
 
 - A identificação da aeronave é única.
 - O CPF identifica um cliente e um tripulante.
@@ -175,76 +81,10 @@ Entre as principais restrições implementadas estão:
 
 O identificador de trajeto é gerado automaticamente pelo PostgreSQL por meio de uma coluna `IDENTITY`.
 
-Também foram utilizadas restrições `CHECK` para impedir o cadastro de trajetos com origem e destino iguais, aeronaves sem assentos e voos com previsão de partida posterior ou igual à previsão de chegada. O preço da passagem também deve ser positivo.
-
-## 4.4. Tipos enumerados
-
-Foram definidos tipos enumerados para representar atributos cujos valores pertencem a conjuntos preestabelecidos.
-
-| Tipo | Valores |
-|---|---|
-| `tipo_usuario` | `GERENTE`, `ADMINISTRADOR`, `CLIENTE` |
-| `status_aeronave` | `DISPONIVEL`, `MANUTENCAO`, `OPERANDO`, `INATIVA` |
-| `status_voo` | `PLANEJAMENTO`, `PROGRAMADO`, `ATRASADO`, `EMBARQUE`, `EM_ANDAMENTO`, `CONCLUIDO`, `CANCELADO` |
-| `status_passagem` | `EMITIDA`, `CANCELADA`, `UTILIZADA` |
-| `funcao_tripulante` | `COMANDANTE`, `COPILOTO`, `MECANICO`, `COMISSARIO` |
-
-A utilização desses tipos restringe os valores aceitos pelos atributos correspondentes, evitando estados inválidos ou inconsistentes com as opções previstas pelo sistema.
-
-No caso de `USUARIO`, também foi implementada uma restrição para garantir que usuários do tipo cliente possuam um cliente associado, enquanto usuários dos demais tipos não possuam essa associação.
-
-## 4.5. Relacionamentos principais
-
-O relacionamento entre Trajeto e Voo permite que um mesmo trajeto seja reutilizado por diferentes voos. Cada voo, entretanto, possui apenas um trajeto associado.
-
-O relacionamento entre Aeronave e Voo permite identificar qual aeronave está designada para cada operação.
-
-O relacionamento entre Cliente, Passagem e Voo permite registrar as compras realizadas e consultar as passagens de cada cliente.
-
-Por fim, o relacionamento entre Tripulante e Voo é implementado por meio de `TRIPULACAO_VOO`, que também registra a função desempenhada por cada profissional em cada voo.
-
-# 5. Regras de negócio implementadas
+## Regras de negócio implementadas
 
 Parte das regras do sistema foi implementada diretamente no PostgreSQL por meio de funções e triggers. Essa abordagem permite centralizar determinadas validações no banco, evitando que elas dependam exclusivamente do comportamento da interface.
-
-## 5.1. Controle de emissão de passagens
-
-A função `verifica_disponibilidade_voo()` é executada antes da inserção ou atualização de uma passagem com status `EMITIDA`.
-
-Essa função verifica se:
-
-- O voo está em um status que permite a emissão de passagens.
-- O assento solicitado não está ocupado por outra passagem não cancelada.
-- A quantidade de passagens emitidas não ultrapassa a capacidade da aeronave.
-- O número do assento está dentro dos limites da capacidade da aeronave.
-
-A função impede a emissão de passagens para voos que não estejam nos estados `PROGRAMADO` ou `ATRASADO`.
-
-Além disso, a restrição de unicidade sobre o par formado pelo número do voo e pelo número do assento complementa o controle de ocupação.
-
-## 5.2. Controle de disponibilidade da aeronave
-
-A função `verifica_aeronave_disponivel()` é executada antes da inserção ou atualização de um voo.
-
-Sua finalidade é impedir que um voo seja associado a uma aeronave cujo status seja `MANUTENCAO` ou `INATIVA`.
-
-Essa validação evita a utilização de aeronaves explicitamente indisponíveis, embora não substitua o controle de conflitos de horário entre diferentes voos.
-
-## 5.3. Verificação da tripulação mínima
-
-A função `verifica_tripulacao_completa()` é executada antes da alteração do status de um voo.
-
-Quando um voo passa para o status `PROGRAMADO`, a função verifica se há, pelo menos:
-
-- Um comandante.
-- Um copiloto.
-- Dois comissários.
-
-Caso alguma dessas condições não seja atendida, a operação é interrompida e uma exceção é lançada.
-
-Essa regra impede que um voo seja programado sem a composição mínima prevista para a tripulação.
-
-## 5.4. Regras ainda pendentes
+Talvez isso não seja o ideal para essas situações por questões de otimização, mas escolhemos implementar pra dar um foco maior no banco de dados, por ser o assunto da disciplina.
 
 Embora parte das validações já esteja implementada, algumas regras previstas no levantamento de requisitos ainda precisam de mecanismos específicos.
 
@@ -263,17 +103,13 @@ Embora parte das validações já esteja implementada, algumas regras previstas 
 
 A identificação dessas pendências orienta os próximos passos de desenvolvimento. Em particular, as validações de concorrência devem considerar que operações simultâneas podem consultar o mesmo estado do banco antes de efetuar alterações.
 
-# 6. Povoamento do banco de dados
+# Povoamento do banco de dados
 
-## 6.1. Estratégia de povoamento
+## Estratégia de povoamento
 
 Para permitir a demonstração das funcionalidades, foi elaborado um script SQL de povoamento inicial, denominado *seed*.
 
 O script insere dados fictícios relacionados aos diferentes tipos de usuários, trajetos, aeronaves, tripulantes, voos e passagens.
-
-A utilização de dados previamente definidos permite reproduzir cenários de teste e demonstrar o funcionamento das consultas e das restrições implementadas.
-
-## 6.2. Dados cadastrados
 
 O conjunto de dados planejado para o povoamento contém os seguintes registros:
 
@@ -295,6 +131,8 @@ Os dados incluem aeronaves disponíveis, em manutenção e inativas, permitindo 
 Foram definidos quatro voos, dos quais três são destinados ao status `PROGRAMADO` e um permanece em `PLANEJAMENTO`. O último cenário permite representar um voo que ainda não está pronto para a emissão de passagens.
 
 Também foram inseridas passagens com status `EMITIDA` e `CANCELADA`, permitindo diferenciar compras válidas de registros cancelados.
+
+DAQUI PRA BAIXO EU NAO REVISEI NADA AINDA
 
 ## 6.3. Consultas para demonstração
 
