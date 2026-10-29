@@ -27,13 +27,10 @@ A cardinalidade do relacionamento entre passagens e voos indicava que uma passag
 2. Falta de representação de responsabilidades
 
 Foi sugerido que criasse especializações do tipo entidade "Usuário" para representar os diferentes tipos de usuário dentro do sistema, e então com essas especializações criasse relações como por exemplo: "administrador -> cria -> voo", "gerente -> cadastra -> trajeto".
-Escolhemos não aderir a essa sugestão.  
-Achamos que isso não precisava ser representado nesse diagrama pois parece mais ser parte da implementação, e não tanto do domínio de dados.  
+Escolhemos não aderir a essa sugestão pois achamos que isso não precisava ser representado nesse diagrama pois parece mais ser parte da implementação, e não tanto do domínio de dados.  
 
 Por fora das sugestões, removemos alguns IDs que estavam servindo de chave onde outros atributos poderiam ser a chave, por exemplo, o cliente possuía `cliente_id`, enquanto o `cpf` já bastava como chave primária.  
 Também foi notado que a modelagem permitia o reaproveitamento de trajetos, porém as datas de partida e chegada do voo ficavam no próprio trajeto, dificultando o reuso. Foi ajustado pra que essas datas pertençam ao voo.
-
-## Modelo atualizado
 
 Após as revisões, o diagrama entidade-relacionamento foi atualizado incorporando os ajustes considerados adequados pelo grupo.
 
@@ -42,6 +39,11 @@ Após as revisões, o diagrama entidade-relacionamento foi atualizado incorporan
 ---
 
 # Implementação do banco de dados
+
+Cristopher se achar que compensa colocar mais coisa na seed, talvez isso ta muito pouco
+Daqui pra baixo eu nao revisei direito e as coisa ta com muita cara de chatgpt
+Outra coisa, ali em baixo tem várias consultas de exemplo que o chatgpt tirou do rabo. Não sei se precisa mesmo das consultas no relatório, mas se precisar
+as consultas certas estão em `/api`
 
 O banco de dados foi implementado utilizando **PostgreSQL**.
 
@@ -132,7 +134,6 @@ Foram definidos quatro voos, dos quais três são destinados ao status `PROGRAMA
 
 Também foram inseridas passagens com status `EMITIDA` e `CANCELADA`, permitindo diferenciar compras válidas de registros cancelados.
 
-DAQUI PRA BAIXO EU NAO REVISEI NADA AINDA
 
 ## 6.3. Consultas para demonstração
 
@@ -228,75 +229,49 @@ Essa consulta demonstra como recuperar as passagens associadas aos clientes e id
 
 **Observação:** os resultados dessas consultas devem ser inseridos no relatório após a execução no banco. As consultas apresentadas são exemplos de demonstração e não constituem, por si só, evidência de que todos os testes foram executados.
 
-# 7. Protótipo da interface
+# Protótipo da interface
 
 O protótipo da aplicação foi organizado de acordo com os três perfis de usuário do sistema. O acesso ocorre por uma tela de login, e o tipo de usuário autenticado determina qual painel será apresentado.
 
-As telas a seguir devem ser ilustradas com capturas de tela do protótipo desenvolvido pelo grupo.
-
-## 7.1. Tela de login
+## Tela de login
 
 A tela inicial permite que o usuário informe suas credenciais. Após a autenticação, a aplicação identifica o tipo de usuário e redireciona para o painel correspondente.
 
-**Figura 3 — Tela de login**
-
 [Inserir captura de tela da tela de login]
 
-## 7.2. Painel do cliente
+## Painel do cliente
 
 O cliente é direcionado para uma interface que permite consultar os voos disponíveis, aplicar filtros à listagem e acessar a área de suas reservas.
 
-A listagem de voos permite reunir as informações necessárias para que o cliente encontre uma opção compatível com sua necessidade. A área de reservas permite consultar as passagens associadas à sua conta.
-
-**Figura 4 — Listagem e filtragem de voos**
-
 [Inserir captura de tela da listagem de voos e dos filtros]
-
-**Figura 5 — Minhas reservas**
 
 [Inserir captura de tela da área de reservas do cliente]
 
-## 7.3. Painel do administrador
+## Painel do administrador
 
 O administrador é direcionado para uma interface que apresenta a listagem de voos e disponibiliza uma ação para criar novos voos.
 
-Essa organização concentra as operações de gerenciamento dos voos em um único painel, facilitando a consulta dos registros existentes e o acesso ao processo de criação.
-
-**Figura 6 — Painel do administrador**
-
 [Inserir captura de tela da listagem de voos e do botão de criação]
-
-**Figura 7 — Cadastro de voo**
 
 [Inserir captura de tela do formulário de criação de voo, caso já esteja implementado]
 
-## 7.4. Painel do gerente
+## Painel do gerente
 
 O painel do gerente possui três abas, destinadas ao gerenciamento de trajetos, aeronaves e tripulantes.
 
-Cada aba apresenta uma listagem dos registros correspondentes e disponibiliza operações de cadastro. A organização por abas separa os diferentes conjuntos de informações e permite acessar diretamente a categoria desejada.
-
-**Figura 8 — Aba de trajetos**
+Cada aba apresenta uma listagem dos registros correspondentes e disponibiliza operações de cadastro.
 
 [Inserir captura de tela da listagem e do cadastro de trajetos]
 
-**Figura 9 — Aba de aeronaves**
-
 [Inserir captura de tela da listagem e do cadastro de aeronaves]
-
-**Figura 10 — Aba de tripulantes**
 
 [Inserir captura de tela da listagem e do cadastro de tripulantes]
 
-## 7.5. Organização e integração da interface
+---
 
-A divisão da interface por perfil busca manter as operações de cada tipo de usuário organizadas de acordo com suas responsabilidades.
+Todas essas telas já estão integradas com uma API e manipulam o banco de dados real, exceto pela reserva de passagens que ainda simula os dados pelo *front-end*.
 
-O cliente concentra suas atividades na consulta de voos e no acompanhamento de reservas. O administrador dispõe das operações relacionadas à criação de voos. O gerente acessa os cadastros utilizados como base para o funcionamento do sistema.
-
-A integração com o banco de dados deve garantir que as operações realizadas pela interface respeitem as restrições e as regras de negócio estabelecidas. A autenticação e a autorização também devem ser verificadas na camada de aplicação, não apenas pelo redirecionamento visual entre os painéis.
-
-# 8. Estado atual do projeto e próximos passos
+# 8. Estado atual e próximos passos
 
 A implementação atual estabelece a estrutura principal do banco de dados, incluindo as entidades necessárias ao gerenciamento de trajetos, aeronaves, tripulantes, voos, usuários e passagens.
 
@@ -317,29 +292,3 @@ Para a entrega final, os próximos passos incluem:
 - Realizar testes integrados das regras de negócio e dos fluxos da aplicação.
 
 Essas atividades buscam garantir que a versão final seja capaz de atender aos requisitos funcionais e às restrições operacionais do sistema.
-
-# 9. Considerações finais
-
-O desenvolvimento do Decolaê permitiu aplicar conceitos de modelagem conceitual, mapeamento relacional, implementação em PostgreSQL e representação de regras de negócio no banco de dados.
-
-A evolução do modelo demonstrou a importância de revisar cardinalidades, avaliar a escolha das chaves e separar adequadamente informações reutilizáveis de informações específicas de cada operação. A implementação também evidenciou a utilidade de restrições de integridade e triggers para centralizar validações.
-
-A organização da interface em diferentes painéis busca refletir as responsabilidades de cada perfil e facilitar o acesso às funcionalidades correspondentes.
-
-Embora a estrutura principal esteja definida, algumas regras de negócio e mecanismos de segurança e concorrência ainda necessitam de implementação e testes. Essas pendências serão consideradas na continuidade do projeto, com o objetivo de entregar uma aplicação integrada e consistente com os requisitos propostos.
-
----
-
-# Apêndice A — Artefatos do projeto
-
-Os seguintes materiais complementam este relatório:
-
-- `diagramas/DER_INICIAL.drawio.png` — diagrama entidade-relacionamento inicial.
-- `diagramas/DER_AJUSTES.drawio.png` — diagrama entidade-relacionamento atualizado.
-- `modelos-relacionais/MR_INICIAL.md` — documentação do modelo relacional inicial.
-- `modelos-relacionais/MR_AJUSTES.md` — documentação do modelo relacional atualizado.
-- `schema.sql` — definição da estrutura do banco de dados.
-- `triggers.sql` — funções e triggers para validação de regras de negócio.
-- `seed.sql` — script de povoamento inicial.
-
-Os nomes dos arquivos devem ser ajustados para corresponder aos nomes efetivamente utilizados no repositório do grupo.
