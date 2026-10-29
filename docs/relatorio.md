@@ -3,6 +3,7 @@
 **Segunda entrega — TP Opção 1**
 
 **Integrantes:** Alan Vale
+Rafael Dayvid de Melo Freitas
 
 Esse relatório apresenta a evolução da modelagem conceitual, a estrutura do banco de dados, o povoamento inicial e o protótipo da interface.
 
@@ -237,23 +238,29 @@ O protótipo da aplicação foi organizado de acordo com os três perfis de usu�
 
 A tela inicial permite que o usuário informe suas credenciais. Após a autenticação, a aplicação identifica o tipo de usuário e redireciona para o painel correspondente.
 
-[Inserir captura de tela da tela de login]
+
+<img width="1920" height="1020" alt="2026-10-29" src="https://github.com/user-attachments/assets/af4f4431-2eb6-4737-9e07-8fb6e8a1e251" />
 
 ## Painel do cliente
 
 O cliente é direcionado para uma interface que permite consultar os voos disponíveis, aplicar filtros à listagem e acessar a área de suas reservas.
 
-[Inserir captura de tela da listagem de voos e dos filtros]
+<img width="1920" height="1020" alt="2026-10-29 (1)" src="https://github.com/user-attachments/assets/7fe949b1-14e1-4be6-9664-21776df42f08" />
 
-[Inserir captura de tela da área de reservas do cliente]
+<img width="1920" height="1020" alt="2026-10-29 (2)" src="https://github.com/user-attachments/assets/ebf6c6c1-59ac-44b1-8c06-d8e26efa45e3" />
 
 ## Painel do administrador
 
 O administrador é direcionado para uma interface que apresenta a listagem de voos e disponibiliza uma ação para criar novos voos.
 
-[Inserir captura de tela da listagem de voos e do botão de criação]
+<img width="1920" height="1020" alt="2026-10-29 (3)" src="https://github.com/user-attachments/assets/c7e5de65-3bb6-432a-aa92-ee05cf91f654" />
 
-[Inserir captura de tela do formulário de criação de voo, caso já esteja implementado]
+
+<img width="1920" height="1020" alt="2026-10-29 (4)" src="https://github.com/user-attachments/assets/56e792b3-6502-4104-a4a9-20c061efa47d" />
+
+
+<img width="1920" height="1020" alt="2026-10-29 (5)" src="https://github.com/user-attachments/assets/08b1b420-4ff0-435a-8543-ad663fb3aa4f" />
+
 
 ## Painel do gerente
 
@@ -261,11 +268,14 @@ O painel do gerente possui três abas, destinadas ao gerenciamento de trajetos, 
 
 Cada aba apresenta uma listagem dos registros correspondentes e disponibiliza operações de cadastro.
 
-[Inserir captura de tela da listagem e do cadastro de trajetos]
+<img width="1920" height="1020" alt="2026-10-29 (6)" src="https://github.com/user-attachments/assets/ba3ac6d4-c41a-488a-b645-7cd9c15cf155" />
 
-[Inserir captura de tela da listagem e do cadastro de aeronaves]
 
-[Inserir captura de tela da listagem e do cadastro de tripulantes]
+<img width="1920" height="1020" alt="2026-10-29 (7)" src="https://github.com/user-attachments/assets/8f3c460a-d466-4312-8b45-82d91bf06afa" />
+
+
+<img width="1920" height="1020" alt="2026-10-29 (8)" src="https://github.com/user-attachments/assets/225807d5-8575-4270-a24f-2f540bb69abd" />
+
 
 ---
 
