@@ -52,7 +52,7 @@ Após as revisões, o diagrama entidade-relacionamento foi atualizado incorporan
 
 O banco de dados foi implementado utilizando **PostgreSQL**.
 
-A implementação usa definição de tipos, chaves primárias, chaves estrangeiras, restrições de integridade e *triggers* pra garantir determinadas regras de negócio.
+A implementação usa restrições de integridade e *triggers* pra garantir determinadas regras de negócio.
 
 ## Tabelas
 
@@ -71,6 +71,8 @@ O banco de dados contém oito tabelas principais.
 
 A separação entre usuário e cliente permite distinguir as informações de autenticação das informações relacionadas à identificação do cliente.  
 Um usuário do tipo cliente deve estar associado a um registro em `cliente`.
+
+ademais tabela de usuario é a unica que pode assumir valores nulos no cpf_cliente, quando o ususario em questão não é um cliente
 
 A tabela `tripulacao_voo` representa o relacionamento `n:m` entre voos e tripulantes, armazenando a função do tripulante no voo.
 
