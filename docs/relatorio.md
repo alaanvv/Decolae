@@ -2,8 +2,17 @@
 
 **Segunda entrega — TP Opção 1**
 
-**Integrantes:** Alan Vale
-Rafael Dayvid de Melo Freitas
+**Integrantes:** 
+- Alan Vale
+
+- Rafael Dayvid de Melo Freitas
+
+- Walter de Macedo Cardoso
+
+- Cristopher Resende
+
+- Erick Raniere de Fatima
+
 
 Esse relatório apresenta a evolução da modelagem conceitual, a estrutura do banco de dados, o povoamento inicial e o protótipo da interface.
 
@@ -40,11 +49,6 @@ Após as revisões, o diagrama entidade-relacionamento foi atualizado incorporan
 ---
 
 # Implementação do banco de dados
-
-Cristopher se achar que compensa colocar mais coisa na seed, talvez isso ta muito pouco
-Daqui pra baixo eu nao revisei direito e as coisa ta com muita cara de chatgpt
-Outra coisa, ali em baixo tem várias consultas de exemplo que o chatgpt tirou do rabo. Não sei se precisa mesmo das consultas no relatório, mas se precisar
-as consultas certas estão em `/api`
 
 O banco de dados foi implementado utilizando **PostgreSQL**.
 
@@ -110,13 +114,11 @@ A identificação dessas pendências orienta os próximos passos de desenvolvime
 
 ## Estratégia de povoamento
 
-Para permitir a demonstração das funcionalidades, foi elaborado um script SQL de povoamento inicial, denominado *seed*.
+Elaboramos um script SQL de povoamento inicial (`seed.sql`) com dados fictícios para validar os fluxos da aplicação.
 
-O script insere dados fictícios relacionados aos diferentes tipos de usuários, trajetos, aeronaves, tripulantes, voos e passagens.
+ O script insere a seguinte quantidade de registros:
 
-O conjunto de dados planejado para o povoamento contém os seguintes registros:
-
-| Tabela | Quantidade de registros planejada |
+| Tabela | Registros planejados |
 |---|---:|
 | `CLIENTE` | 4 |
 | `USUARIO` | 6 |
@@ -127,18 +129,13 @@ O conjunto de dados planejado para o povoamento contém os seguintes registros:
 | `TRIPULACAO_VOO` | 12 |
 | `PASSAGEM` | 6 |
 
-Essas quantidades correspondem aos registros presentes no script de povoamento. A confirmação da carga completa depende da execução bem-sucedida do script no banco de dados.
+Cadastramos cenários com aeronaves ativas e em manutenção, além de voos nos status `PROGRAMADO` e `PLANEJAMENTO` para testar os bloqueios de emissão.
 
-Os dados incluem aeronaves disponíveis, em manutenção e inativas, permitindo preparar cenários para a verificação das regras de disponibilidade.
-
-Foram definidos quatro voos, dos quais três são destinados ao status `PROGRAMADO` e um permanece em `PLANEJAMENTO`. O último cenário permite representar um voo que ainda não está pronto para a emissão de passagens.
-
-Também foram inseridas passagens com status `EMITIDA` e `CANCELADA`, permitindo diferenciar compras válidas de registros cancelados.
-
+---
 
 ## 6.3. Consultas para demonstração
 
-Para demonstrar o funcionamento do banco, podem ser utilizadas consultas que recuperam informações relevantes para os diferentes perfis de usuário.
+Abaixo estão as consultas SQL utilizadas para validar o retorno dos dados no backend:
 
 ### 6.3.1. Listagem de voos com trajeto e aeronave
 
@@ -160,7 +157,7 @@ JOIN AERONAVE A ON A.identificacao = V.id_aeronave
 ORDER BY V.previsao_partida;
 ```
 
-Essa consulta reúne informações de diferentes tabelas para apresentar os dados necessários à visualização dos voos.
+Recupera os detalhes operacionais de cada voo cadastrado.
 
 ### 6.3.2. Consulta de assentos disponíveis
 
@@ -176,17 +173,13 @@ SELECT
             WHERE P.status = 'EMITIDA'
         ) AS assentos_disponiveis
 FROM VOO V
-JOIN AERONAVE A
-    ON A.identificacao = V.id_aeronave
-LEFT JOIN PASSAGEM P
-    ON P.numero_voo = V.numero_voo
-GROUP BY
-    V.numero_voo,
-    A.quantidade_assentos
+JOIN AERONAVE A ON A.identificacao = V.id_aeronave
+LEFT JOIN PASSAGEM P ON P.numero_voo = V.numero_voo
+GROUP BY V.numero_voo, A.quantidade_assentos
 ORDER BY V.numero_voo;
 ```
 
-Essa consulta calcula a quantidade de assentos disponíveis considerando a capacidade da aeronave e as passagens atualmente emitidas.
+Calcula os assentos livres subtraindo as passagens emitidas da capacidade da aeronave.
 
 ### 6.3.3. Consulta de tripulantes escalados
 
@@ -196,14 +189,11 @@ SELECT
     T.nome,
     TV.funcao_no_voo
 FROM TRIPULACAO_VOO TV
-JOIN TRIPULANTE T
-    ON T.cpf = TV.cpf_tripulante
-ORDER BY
-    TV.numero_voo,
-    TV.funcao_no_voo;
+JOIN TRIPULANTE T ON T.cpf = TV.cpf_tripulante
+ORDER BY TV.numero_voo, TV.funcao_no_voo;
 ```
 
-Essa consulta permite verificar a composição da tripulação de cada voo e a função atribuída a cada profissional.
+Exibe a equipe alocada para cada voo e a respectiva função a bordo.
 
 ### 6.3.4. Consulta de passagens por cliente
 
@@ -217,33 +207,29 @@ SELECT
     P.numero_voo,
     U.nome AS nome_cliente
 FROM PASSAGEM P
-JOIN CLIENTE C
-    ON C.cpf = P.cpf_cliente
-JOIN USUARIO U
-    ON U.cpf_cliente = C.cpf
-ORDER BY
-    U.nome,
-    P.data_compra;
+JOIN CLIENTE C ON C.cpf = P.cpf_cliente
+JOIN USUARIO U ON U.cpf_cliente = C.cpf
+ORDER BY U.nome, P.data_compra;
 ```
 
-Essa consulta demonstra como recuperar as passagens associadas aos clientes e identificar as informações da compra.
+Lista o histórico de compras de cada cliente no sistema.
 
 **Observação:** os resultados dessas consultas devem ser inseridos no relatório após a execução no banco. As consultas apresentadas são exemplos de demonstração e não constituem, por si só, evidência de que todos os testes foram executados.
 
 # Protótipo da interface
 
-O protótipo da aplicação foi organizado de acordo com os três perfis de usuário do sistema. O acesso ocorre por uma tela de login, e o tipo de usuário autenticado determina qual painel será apresentado.
+Desenvolvemos o protótipo da aplicação organizado pelos três perfis de acesso. O sistema redireciona o utilizador para o painel correspondente conforme a autenticação.
 
 ## Tela de login
 
-A tela inicial permite que o usuário informe suas credenciais. Após a autenticação, a aplicação identifica o tipo de usuário e redireciona para o painel correspondente.
+Permite o acesso com seleção rápida de perfil para testes.
 
 
 <img width="1920" height="1020" alt="2026-10-29" src="https://github.com/user-attachments/assets/af4f4431-2eb6-4737-9e07-8fb6e8a1e251" />
 
 ## Painel do cliente
 
-O cliente é direcionado para uma interface que permite consultar os voos disponíveis, aplicar filtros à listagem e acessar a área de suas reservas.
+Permite pesquisar voos por origem, destino e data, além de visualizar o histórico de reservas do passageiro.
 
 <img width="1920" height="1020" alt="2026-10-29 (1)" src="https://github.com/user-attachments/assets/7fe949b1-14e1-4be6-9664-21776df42f08" />
 
@@ -251,7 +237,7 @@ O cliente é direcionado para uma interface que permite consultar os voos dispon
 
 ## Painel do administrador
 
-O administrador é direcionado para uma interface que apresenta a listagem de voos e disponibiliza uma ação para criar novos voos.
+Apresenta o painel com indicadores gerais da operação e modal para inclusão de novos voos.
 
 <img width="1920" height="1020" alt="2026-10-29 (3)" src="https://github.com/user-attachments/assets/c7e5de65-3bb6-432a-aa92-ee05cf91f654" />
 
@@ -264,9 +250,7 @@ O administrador é direcionado para uma interface que apresenta a listagem de vo
 
 ## Painel do gerente
 
-O painel do gerente possui três abas, destinadas ao gerenciamento de trajetos, aeronaves e tripulantes.
-
-Cada aba apresenta uma listagem dos registros correspondentes e disponibiliza operações de cadastro.
+Contém as abas para gestão de rotas/trajetos, frota de aeronaves e escalas da tripulação.
 
 <img width="1920" height="1020" alt="2026-10-29 (6)" src="https://github.com/user-attachments/assets/ba3ac6d4-c41a-488a-b645-7cd9c15cf155" />
 
@@ -279,26 +263,25 @@ Cada aba apresenta uma listagem dos registros correspondentes e disponibiliza op
 
 ---
 
-Todas essas telas já estão integradas com uma API e manipulam o banco de dados real, exceto pela reserva de passagens que ainda simula os dados pelo *front-end*.
-
 # 8. Estado atual e próximos passos
 
-A implementação atual estabelece a estrutura principal do banco de dados, incluindo as entidades necessárias ao gerenciamento de trajetos, aeronaves, tripulantes, voos, usuários e passagens.
+Atualmente, a estrutura do banco de dados, o script de povoamento e as rotas da API estão integrados com o frontend (com exceção do fluxo final de reserva de passagens, que ainda simula a resposta na interface).
 
-Também foram definidas restrições de integridade, tipos enumerados e triggers para validar parte das regras de negócio. O script de povoamento prepara dados fictícios para demonstrar os relacionamentos e as operações previstas.
+Para a entrega final, vamos focar nos seguintes pontos:
 
-O protótipo da interface está organizado em painéis específicos para gerente, administrador e cliente, de acordo com as responsabilidades descritas no levantamento de requisitos.
-
-Para a entrega final, os próximos passos incluem:
-
-- Completar e testar as validações de conflitos de horário de aeronaves e tripulantes.
-- Implementar o controle de descanso mínimo e das escalas de trabalho.
-- Aprimorar o controle de concorrência na emissão de passagens.
-- Ajustar o tratamento de assentos associados a passagens canceladas.
-- Executar e validar o script de povoamento com a estrutura atual do banco.
-- Testar as consultas e as operações de cadastro, alteração e remoção.
-- Concluir a integração entre a interface e a API, quando aplicável.
-- Verificar a autenticação, a autorização por perfil e o armazenamento seguro das senhas.
-- Realizar testes integrados das regras de negócio e dos fluxos da aplicação.
+- Finalizar os triggers de verificação de choque de horários (aeronaves e tripulantes).
+- Implementar as regras de descanso mínimo para a tripulação.
+- Ajustar o tratamento de concorrência na compra simultânea de assentos.
+- Concluir a integração total do fluxo de reservas com o banco de dados.
+- Realizar os testes de integração e validação de permissões por perfil.
 
 Essas atividades buscam garantir que a versão final seja capaz de atender aos requisitos funcionais e às restrições operacionais do sistema.
+
+Links de acesso para o projeto:
+---
+
+> **Acesso ao Protótipo e Código-Fonte:**
+> - 🔗 **Repositório do projeto:** [github.com/alaanvv/Decolae](https://github.com/alaanvv/Decolae)
+> - 🖥️ **Interface do protótipo (HTML):** [app/index.html](https://github.com/alaanvv/Decolae/blob/master/app/index.html) *(para testar localmente, basta clonar o repositório e abrir o arquivo `index.html` no navegador)*
+
+---
