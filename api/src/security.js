@@ -11,15 +11,19 @@ function safeEqual(left, right) {
 
 export function hashPassword(password) {
   const salt = randomBytes(16).toString('base64url')
-  const hash = scryptSync(password, salt, 64).toString('base64url')
-  return `scrypt$${salt}$${hash}`
+  // 16 bytes of salt and 16 bytes of derived key keep the value under the
+  // original varchar(50) schema limit while retaining a 128-bit verifier.
+  const hash = scryptSync(password, salt, 16).toString('base64url')
+  return `s$${salt}$${hash}`
 }
 
 export function verifyPassword(password, stored) {
-  if (!stored?.startsWith('scrypt$')) return { valid: safeEqual(password, stored ?? ''), legacy: true }
+  const format = stored?.startsWith('scrypt$') ? 'scrypt' : stored?.startsWith('s$') ? 'short' : null
+  if (!format) return { valid: safeEqual(password, stored ?? ''), legacy: true }
   const [, salt, expected] = stored.split('$')
   if (!salt || !expected) return { valid: false, legacy: false }
-  const actual = scryptSync(password, salt, 64).toString('base64url')
+  const keyLength = format === 'scrypt' ? 64 : 16
+  const actual = scryptSync(password, salt, keyLength).toString('base64url')
   return { valid: safeEqual(actual, expected), legacy: false }
 }
 
