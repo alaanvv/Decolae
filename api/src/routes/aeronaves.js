@@ -15,7 +15,7 @@ export default async (app) => {
       identificacao,
       modelo,
       quantidade_assentos
-    } = request.body
+    } = request.body ?? {}
 
     if (!identificacao || !modelo || !quantidade_assentos)
       return reply.code(400).send({ erro: 'Todos os campos são obrigatórios' })
@@ -43,5 +43,23 @@ export default async (app) => {
 
       throw error
     }
+  })
+
+  app.delete('/:identificacao', async (request, reply) => {
+    const { identificacao } = request.params
+    let result
+    try {
+      result = await db.query(
+        'DELETE FROM aeronave WHERE identificacao = $1 RETURNING identificacao',
+        [identificacao]
+      )
+    } catch (error) {
+      if (error.code === '23503')
+        return reply.code(409).send({ erro: 'Não é possível excluir uma aeronave associada a voos.' })
+      throw error
+    }
+    if (!result.rowCount)
+      return reply.code(404).send({ erro: 'Aeronave não encontrada.' })
+    return reply.code(204).send()
   })
 }

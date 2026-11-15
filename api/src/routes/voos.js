@@ -27,9 +27,9 @@ export default async (app) => {
       previsao_chegada,
       id_trajeto,
       id_aeronave
-    } = request.body
+    } = request.body ?? {}
 
-    if (!numero_voo || !status || !previsao_partida || !previsao_chegada || !id_trajeto || !id_aeronave)
+    if (!numero_voo || !status || !previsao_partida || !previsao_chegada || id_trajeto == null || !id_aeronave)
       return reply.code(400).send({ erro: 'Todos os campos são obrigatórios' })
 
     try {

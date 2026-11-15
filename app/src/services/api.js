@@ -27,6 +27,7 @@ async function http(path, { method = 'GET', body } = {}) {
 
 const asList = (r) => (Array.isArray(r) ? r : []);
 const post = (path, body) => http(path, { method: 'POST', body });
+const remove = (path) => http(path, { method: 'DELETE' });
 
 export const resources = {
   routes: {
@@ -37,6 +38,7 @@ export const resources = {
         destination: t.cidade_destino,
       })),
     create: (v) => post('/trajetos', { cidade_origem: v.origin.trim(), cidade_destino: v.destination.trim() }),
+    remove: (id) => remove(`/trajetos/${encodeURIComponent(id)}`),
   },
   aircrafts: {
     list: async () =>
@@ -52,10 +54,12 @@ export const resources = {
         modelo: v.model.trim(),
         quantidade_assentos: Number(v.capacity),
       }),
+    remove: (id) => remove(`/aeronaves/${encodeURIComponent(id)}`),
   },
   crew: {
     list: async () => asList(await http('/tripulantes')).map((c) => ({ id: c.cpf, name: c.nome, cpf: c.cpf })),
     create: (v) => post('/tripulantes', { cpf: v.cpf.replace(/\D/g, ''), nome: v.name.trim() }),
+    remove: (id) => remove(`/tripulantes/${encodeURIComponent(id)}`),
   },
   flights: {
     // Ajuste aqui se o GET /voos devolver nomes de campos diferentes.

@@ -4,7 +4,7 @@
 
 Execute os comandos na raiz do projeto (`Decolae`).
 
-Copie `.env.example` pra `.env` e configure as variáveis  
+Copie `api/.env.example` para `api/.env` e configure a conexão com o PostgreSQL. O servidor carrega esse arquivo mesmo quando iniciado a partir da raiz do projeto.
 Pra mim o usuário do banco de dados padrão é `postgres` com a senha sendo a senha do meu usuário do *linux*
 
 1. Instale as dependências dos dois módulos: `npm install`

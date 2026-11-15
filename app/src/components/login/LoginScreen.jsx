@@ -28,7 +28,7 @@ export default function LoginScreen() {
           <p className="text-sm text-slate-400 mt-1">Plataforma de Gestão & Reservas de Aviação</p>
         </div>
 
-        <form onSubmit={submit} className="space-y-4">
+        <form onSubmit={submit} autoComplete="off" className="space-y-4">
           {isRegister && (
             <>
               <IconInput label="Nome Completo" icon="fa-user" placeholder="Gabriel Silva" {...bind('nome')} />
@@ -38,8 +38,8 @@ export default function LoginScreen() {
               </div>
             </>
           )}
-          <IconInput label="E-mail de Acesso" icon="fa-envelope" type="email" placeholder="seu.email@decolae.com" {...bind('email')} />
-          <IconInput label="Senha" icon="fa-lock" type="password" {...bind('senha')} />
+          <IconInput label="E-mail de Acesso" icon="fa-envelope" type="email" autoComplete="off" placeholder="seu.email@decolae.com" {...bind('email')} />
+          <IconInput label="Senha" icon="fa-lock" type="password" autoComplete="new-password" {...bind('senha')} />
           <button type="submit" disabled={loading} className="w-full py-3 px-4 bg-decolae-600 hover:bg-decolae-500 disabled:opacity-60 text-white font-medium rounded-lg shadow-lg shadow-decolae-600/30 transition duration-200 flex items-center justify-center gap-2">
             <span>{loading ? 'Aguarde...' : isRegister ? 'Criar Conta de Cliente' : 'Entrar no Sistema'}</span>
             <i className="fa-solid fa-arrow-right text-sm" />

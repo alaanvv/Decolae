@@ -59,11 +59,23 @@ export function DataProvider({ children }) {
     }
   };
 
+  const deleteEntity = async (col, id, successMsg) => {
+    try {
+      await resources[col].remove(id);
+      await reload([col]);
+      toast(successMsg, 'success');
+      return true;
+    } catch (e) {
+      toast(e.message, 'error');
+      return false;
+    }
+  };
+
   const addReservation = (r) => setData((d) => ({ ...d, reservations: [...d.reservations, r] }));
   const removeReservation = (id) => setData((d) => ({ ...d, reservations: d.reservations.filter((r) => r.id !== id) }));
 
   return (
-    <DataCtx.Provider value={{ data, loading, reload, create, addReservation, removeReservation }}>
+    <DataCtx.Provider value={{ data, loading, reload, create, deleteEntity, addReservation, removeReservation }}>
       {children}
     </DataCtx.Provider>
   );
