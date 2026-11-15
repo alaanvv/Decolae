@@ -1,13 +1,21 @@
 import useForm from '../../hooks/useForm';
 import { useData } from '../../context/DataContext';
 
-export default function useAircraftForm(onClose) {
-  const { create } = useData();
-  const { values, bind } = useForm({ code: '', model: '', capacity: '' });
+export default function useAircraftForm(onClose, aircraft) {
+  const { create, updateEntity } = useData();
+  const { values, bind } = useForm({
+    code: aircraft?.code ?? '',
+    model: aircraft?.model ?? '',
+    capacity: aircraft?.capacity ?? '',
+    status: aircraft?.status ?? 'DISPONIVEL',
+  });
 
   const submit = async (e) => {
     e.preventDefault();
-    if (await create('aircrafts', values, 'Aeronave adicionada à frota!')) onClose();
+    const ok = aircraft
+      ? await updateEntity('aircrafts', aircraft.id, values, 'Aeronave atualizada.')
+      : await create('aircrafts', values, 'Aeronave adicionada à frota!');
+    if (ok) onClose();
   };
 
   return { bind, submit };

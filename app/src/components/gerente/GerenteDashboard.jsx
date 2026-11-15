@@ -2,11 +2,13 @@ import { useState } from 'react';
 import RoutesTab from './RoutesTab';
 import AircraftsTab from './AircraftsTab';
 import CrewTab from './CrewTab';
+import SchedulesTab from './SchedulesTab';
 
 const TABS = [
   { id: 'trajetos', label: 'Trajetos', icon: 'fa-route', Content: RoutesTab },
   { id: 'aeronaves', label: 'Aeronaves', icon: 'fa-plane text-sm', Content: AircraftsTab },
   { id: 'tripulantes', label: 'Tripulantes', icon: 'fa-id-card', Content: CrewTab },
+  { id: 'escalas', label: 'Escalas', icon: 'fa-clipboard-list', Content: SchedulesTab },
 ];
 
 export default function GerenteDashboard() {

@@ -9,7 +9,7 @@ export default function useCreateFlight(onClose) {
 
   const { values, bind } = useForm({
     code: '', route: routeOptions[0]?.value, departure: '', arrival: '',
-    aircraft: aircraftOptions[0]?.value, status: 'PROGRAMADO',
+    aircraft: aircraftOptions[0]?.value,
   });
 
   const submit = async (e) => {

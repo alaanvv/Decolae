@@ -42,6 +42,27 @@ export default async (app) => {
     }
   })
 
+  app.put('/:cpf', async (request, reply) => {
+    const currentCpf = request.params.cpf
+    const { cpf = currentCpf, nome } = request.body ?? {}
+    if (!cpf || !nome)
+      return reply.code(400).send({ erro: 'CPF e nome são obrigatórios.' })
+    try {
+      const result = await db.query(
+        'UPDATE tripulante SET cpf = $2, nome = $3 WHERE cpf = $1 RETURNING *',
+        [currentCpf, cpf.replace(/\D/g, ''), nome]
+      )
+      if (!result.rowCount) return reply.code(404).send({ erro: 'Tripulante não encontrado.' })
+      return result.rows[0]
+    } catch (error) {
+      if (error.code === '23505')
+        return reply.code(409).send({ erro: 'Já existe um tripulante com esse CPF.' })
+      if (error.code === '23503')
+        return reply.code(409).send({ erro: 'O CPF não pode ser alterado enquanto o tripulante estiver escalado.' })
+      throw error
+    }
+  })
+
   app.delete('/:cpf', async (request, reply) => {
     const { cpf } = request.params
     let result

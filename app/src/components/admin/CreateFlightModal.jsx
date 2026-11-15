@@ -1,7 +1,6 @@
 import Modal from '../common/Modal';
 import Field from '../common/Field';
 import FormActions from '../common/FormActions';
-import { STATUS_OPTIONS } from '../../utils/flightStatus';
 import useCreateFlight from './useCreateFlight';
 
 export default function CreateFlightModal({ onClose }) {
@@ -18,7 +17,6 @@ export default function CreateFlightModal({ onClose }) {
           <Field label="Previsão de Chegada" type="datetime-local" required {...bind('arrival')} />
         </div>
         <Field label="Aeronave Atribuída" required options={aircraftOptions} {...bind('aircraft')} />
-        <Field label="Status Inicial" options={STATUS_OPTIONS} {...bind('status')} />
         <FormActions onCancel={onClose} submitLabel="Salvar Voo" />
       </form>
     </Modal>

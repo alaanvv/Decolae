@@ -27,6 +27,8 @@ async function http(path, { method = 'GET', body } = {}) {
 
 const asList = (r) => (Array.isArray(r) ? r : []);
 const post = (path, body) => http(path, { method: 'POST', body });
+const put = (path, body) => http(path, { method: 'PUT', body });
+const patch = (path, body) => http(path, { method: 'PATCH', body });
 const remove = (path) => http(path, { method: 'DELETE' });
 
 export const resources = {
@@ -38,6 +40,7 @@ export const resources = {
         destination: t.cidade_destino,
       })),
     create: (v) => post('/trajetos', { cidade_origem: v.origin.trim(), cidade_destino: v.destination.trim() }),
+    update: (id, v) => put(`/trajetos/${encodeURIComponent(id)}`, { cidade_origem: v.origin.trim(), cidade_destino: v.destination.trim() }),
     remove: (id) => remove(`/trajetos/${encodeURIComponent(id)}`),
   },
   aircrafts: {
@@ -54,11 +57,18 @@ export const resources = {
         modelo: v.model.trim(),
         quantidade_assentos: Number(v.capacity),
       }),
+    update: (id, v) => put(`/aeronaves/${encodeURIComponent(id)}`, {
+      identificacao: v.code.trim().toUpperCase(),
+      modelo: v.model.trim(),
+      quantidade_assentos: Number(v.capacity),
+      status: v.status,
+    }),
     remove: (id) => remove(`/aeronaves/${encodeURIComponent(id)}`),
   },
   crew: {
-    list: async () => asList(await http('/tripulantes')).map((c) => ({ id: c.cpf, name: c.nome, cpf: c.cpf })),
+    list: async () => asList(await http('/tripulantes')).map((c) => ({ id: c.cpf.trim(), name: c.nome, cpf: c.cpf.trim() })),
     create: (v) => post('/tripulantes', { cpf: v.cpf.replace(/\D/g, ''), nome: v.name.trim() }),
+    update: (id, v) => put(`/tripulantes/${encodeURIComponent(id)}`, { cpf: v.cpf.replace(/\D/g, ''), nome: v.name.trim() }),
     remove: (id) => remove(`/tripulantes/${encodeURIComponent(id)}`),
   },
   flights: {
@@ -72,17 +82,22 @@ export const resources = {
         departure: f.previsao_partida,
         arrival: f.previsao_chegada,
         aircraft: f.id_aeronave ?? f.aeronave,
+        aircraftModel: f.modelo_aeronave,
+        capacity: f.quantidade_assentos,
         status: f.status,
       })),
     create: (v) =>
       post('/voos', {
         numero_voo: v.code.trim().toUpperCase(),
-        status: v.status,
         previsao_partida: new Date(v.departure).toISOString(),
         previsao_chegada: new Date(v.arrival).toISOString(),
         id_trajeto: Number(v.route),
         id_aeronave: v.aircraft,
       }),
+    crew: async (flight) => asList(await http(`/voos/${encodeURIComponent(flight)}/tripulantes`)),
+    assignCrew: (flight, member, role) => post(`/voos/${encodeURIComponent(flight)}/tripulantes`, { cpf_tripulante: member, funcao_no_voo: role }),
+    removeCrew: (flight, member) => remove(`/voos/${encodeURIComponent(flight)}/tripulantes/${encodeURIComponent(member)}`),
+    setStatus: (flight, status) => patch(`/voos/${encodeURIComponent(flight)}/status`, { status }),
   },
 };
 

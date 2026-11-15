@@ -32,8 +32,6 @@ As principais entidades do sistema e seus atributos são:
 - **Trajeto**
   - Cidade de origem
   - Cidade de destino
-  - Previsão de partida
-  - Previsão de chegada
 
 - **Aeronave**
   - Modelo
@@ -48,6 +46,8 @@ As principais entidades do sistema e seus atributos são:
 - **Voo**
   - Trajeto
   - Aeronave
+  - Previsão de partida
+  - Previsão de chegada
   - Tripulação
   - Status
 
