@@ -1,7 +1,8 @@
 import db from '../db.js'
+import { requireAuth, requireRole } from '../security.js'
 
 export default async (app) => {
-  app.get('/', async (_request, _reply) => {
+  app.get('/', { preHandler: requireAuth }, async (_request, _reply) => {
     const result = await db.query(`
       SELECT *
       FROM aeronave
@@ -10,7 +11,7 @@ export default async (app) => {
     return result.rows
   })
 
-  app.post('/', async (request, reply) => {
+  app.post('/', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const {
       identificacao,
       modelo,
@@ -45,7 +46,7 @@ export default async (app) => {
     }
   })
 
-  app.put('/:identificacao', async (request, reply) => {
+  app.put('/:identificacao', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const { identificacao } = request.params
     const { identificacao: novaIdentificacao = identificacao, modelo, quantidade_assentos, status } = request.body ?? {}
     if (!novaIdentificacao || !modelo || !Number.isInteger(Number(quantidade_assentos)) || Number(quantidade_assentos) < 1 || !status)
@@ -69,7 +70,7 @@ export default async (app) => {
     }
   })
 
-  app.delete('/:identificacao', async (request, reply) => {
+  app.delete('/:identificacao', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const { identificacao } = request.params
     let result
     try {

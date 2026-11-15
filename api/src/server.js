@@ -9,6 +9,7 @@ import Aeronaves from './routes/aeronaves.js'
 import Tripulantes from './routes/tripulantes.js'
 import Auth from './routes/auth.js'
 import handleError from './handleError.js'
+import { getSessionCookie, readSession } from './security.js'
 
 const app = Fastify({
   logger: { level: 'warn' }
@@ -18,6 +19,9 @@ app.setErrorHandler(handleError)
 app.setNotFoundHandler((_request, reply) =>
   reply.code(404).send({ erro: 'Rota não encontrada.' })
 )
+app.addHook('onRequest', async (request) => {
+  request.user = readSession(getSessionCookie(request))
+})
 
 app.register(Voos, { prefix: '/api/voos' })
 app.register(Trajetos, { prefix: '/api/trajetos' })

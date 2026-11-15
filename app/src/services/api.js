@@ -106,5 +106,7 @@ export const authApi = {
     const r = await post('/auth/login', { email, senha });
     return r.usuario ?? r;
   },
+  session: () => http('/auth/session'),
+  logout: () => post('/auth/logout', {}),
   register: (v) => post('/auth/register', { email: v.email, nome: v.nome, senha: v.senha, cpf: v.cpf, telefone: v.telefone }),
 };

@@ -11,8 +11,9 @@ import ClienteDashboard from './components/cliente/ClienteDashboard';
 const DASHBOARDS = { admin: AdminDashboard, gerente: GerenteDashboard, cliente: ClienteDashboard };
 
 function Shell() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const Dashboard = user && DASHBOARDS[user.type];
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-400">Verificando sessão...</div>;
   return (
     <div className="min-h-screen flex flex-col">
       {user ? (

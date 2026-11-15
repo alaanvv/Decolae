@@ -66,7 +66,7 @@ CREATE TABLE TRIPULANTE (
 CREATE TABLE USUARIO (
   email varchar(50) PRIMARY key,
   nome varchar(50) NOT NULL,
-  senha varchar(50) NOT NULL,
+  senha varchar(255) NOT NULL,
   tipo tipo_usuario NOT NULL,
   cpf_cliente char(11),
   UNIQUE (cpf_cliente),

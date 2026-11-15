@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { authApi } from '../services/api';
 
 const STORAGE_KEY = 'decolae_user';
@@ -11,44 +11,66 @@ const ROLES = {
 
 const AuthCtx = createContext(null);
 
-function loadSavedUser() {
+function saveUser(user) {
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved && ['admin', 'gerente', 'cliente'].includes(saved.type) && saved.email && saved.name)
-      return { type: saved.type, role: saved.role, name: saved.name, email: saved.email };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      type: user.type,
+      role: user.role,
+      name: user.name,
+      email: user.email,
+      cpf: user.cpf,
+    }));
   } catch {
-    // Remove corrupted or inaccessible saved session data and show the login screen.
+    // The server-side session remains valid if local storage is unavailable.
   }
-  return null;
+}
+
+function clearSavedUser() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch { /* Ignore unavailable storage. */ }
+}
+
+function toAppUser(user) {
+  const tipo = String(user.tipo ?? user.tipo_usuario ?? '').toUpperCase();
+  const role = ROLES[tipo];
+  return role ? { ...role, name: user.nome, email: user.email, cpf: user.cpf_cliente ?? null } : null;
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadSavedUser);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    authApi.session()
+      .then((response) => {
+        const next = toAppUser(response);
+        if (!next) throw new Error('Perfil de usuário inválido.');
+        saveUser(next);
+        setUser(next);
+      })
+      .catch(() => {
+        clearSavedUser();
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const login = async (email, senha) => {
     const u = await authApi.login(email.trim(), senha);
-    const tipo = String(u.tipo ?? u.tipo_usuario ?? 'CLIENTE').toUpperCase();
-    const next = { ...(ROLES[tipo] || ROLES.CLIENTE), name: u.nome, email: u.email ?? email };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      // Login still works if browser storage is disabled or full.
-    }
+    const next = toAppUser(u);
+    if (!next) throw new Error('Perfil de usuário inválido.');
+    saveUser(next);
     setUser(next);
     return next;
   };
 
   const logout = () => {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // The in-memory session is still cleared.
-    }
+    authApi.logout().catch(() => {});
+    clearSavedUser();
     setUser(null);
   };
 
   return (
-    <AuthCtx.Provider value={{ user, login, register: authApi.register, logout }}>
+    <AuthCtx.Provider value={{ user, loading, login, register: authApi.register, logout }}>
       {children}
     </AuthCtx.Provider>
   );

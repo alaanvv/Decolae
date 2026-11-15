@@ -1,7 +1,8 @@
 import db from '../db.js'
+import { requireAuth, requireRole } from '../security.js'
 
 export default async (app) => {
-  app.get('/', async (_request, _reply) => {
+  app.get('/', { preHandler: requireAuth }, async (_request, _reply) => {
     const result = await db.query(`
       SELECT *
       FROM trajeto
@@ -10,7 +11,7 @@ export default async (app) => {
     return result.rows
   })
 
-  app.post('/', async (request, reply) => {
+  app.post('/', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const {
       cidade_origem,
       cidade_destino
@@ -47,7 +48,7 @@ export default async (app) => {
     return reply.code(201).send(result.rows[0])
   })
 
-  app.put('/:id', async (request, reply) => {
+  app.put('/:id', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const id = Number(request.params.id)
     const { cidade_origem, cidade_destino } = request.body ?? {}
     if (!Number.isInteger(id) || id < 1)
@@ -83,7 +84,7 @@ export default async (app) => {
     }
   })
 
-  app.delete('/:id', async (request, reply) => {
+  app.delete('/:id', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const id = Number(request.params.id)
     if (!Number.isInteger(id) || id < 1)
       return reply.code(400).send({ erro: 'Identificador de trajeto inválido.' })

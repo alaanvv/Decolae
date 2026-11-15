@@ -1,7 +1,8 @@
 import db from '../db.js'
+import { requireAuth, requireRole } from '../security.js'
 
 export default async (app) => {
-  app.get('/', async (_request, _reply) => {
+  app.get('/', { preHandler: requireAuth }, async (_request, _reply) => {
     const result = await db.query(`
       SELECT *
       FROM tripulante
@@ -10,7 +11,7 @@ export default async (app) => {
     return result.rows
   })
 
-  app.post('/', async (request, reply) => {
+  app.post('/', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const {
       cpf,
       nome
@@ -42,7 +43,7 @@ export default async (app) => {
     }
   })
 
-  app.put('/:cpf', async (request, reply) => {
+  app.put('/:cpf', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const currentCpf = request.params.cpf
     const { cpf = currentCpf, nome } = request.body ?? {}
     if (!cpf || !nome)
@@ -63,7 +64,7 @@ export default async (app) => {
     }
   })
 
-  app.delete('/:cpf', async (request, reply) => {
+  app.delete('/:cpf', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const { cpf } = request.params
     let result
     try {

@@ -1,7 +1,8 @@
 import db from '../db.js'
+import { requireAuth, requireRole } from '../security.js'
 
 export default async (app) => {
-  app.get('/', async (_request, _reply) => {
+  app.get('/', { preHandler: requireAuth }, async (_request, _reply) => {
     const result = await db.query(`
       SELECT
         v.numero_voo,
@@ -24,7 +25,7 @@ export default async (app) => {
     return result.rows
   })
 
-  app.post('/', async (request, reply) => {
+  app.post('/', { preHandler: requireRole('ADMINISTRADOR') }, async (request, reply) => {
     const {
       numero_voo,
       previsao_partida,
@@ -72,7 +73,7 @@ export default async (app) => {
     }
   })
 
-  app.get('/:numero_voo/tripulantes', async (request) => {
+  app.get('/:numero_voo/tripulantes', { preHandler: requireRole('GERENTE', 'ADMINISTRADOR') }, async (request) => {
     const { numero_voo } = request.params
     const result = await db.query(
       `SELECT tr.cpf, tr.nome, tv.funcao_no_voo
@@ -85,7 +86,7 @@ export default async (app) => {
     return result.rows
   })
 
-  app.post('/:numero_voo/tripulantes', async (request, reply) => {
+  app.post('/:numero_voo/tripulantes', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const { numero_voo } = request.params
     const { cpf_tripulante, funcao_no_voo } = request.body ?? {}
     if (!cpf_tripulante || !funcao_no_voo)
@@ -105,7 +106,7 @@ export default async (app) => {
     }
   })
 
-  app.delete('/:numero_voo/tripulantes/:cpf', async (request, reply) => {
+  app.delete('/:numero_voo/tripulantes/:cpf', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const { numero_voo, cpf } = request.params
     const result = await db.query(
       'DELETE FROM tripulacao_voo WHERE numero_voo = $1 AND cpf_tripulante = $2 RETURNING cpf_tripulante',
@@ -115,7 +116,7 @@ export default async (app) => {
     return reply.code(204).send()
   })
 
-  app.patch('/:numero_voo/status', async (request, reply) => {
+  app.patch('/:numero_voo/status', { preHandler: requireRole('GERENTE') }, async (request, reply) => {
     const { numero_voo } = request.params
     const { status } = request.body ?? {}
     if (!status) return reply.code(400).send({ erro: 'Status é obrigatório.' })
@@ -133,7 +134,7 @@ export default async (app) => {
     }
   })
 
-  app.get('/:numero_voo', async (request, reply) => {
+  app.get('/:numero_voo', { preHandler: requireAuth }, async (request, reply) => {
     const { numero_voo } = request.params
 
     const result = await db.query(`
