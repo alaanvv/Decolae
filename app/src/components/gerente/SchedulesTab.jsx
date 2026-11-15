@@ -25,6 +25,7 @@ function FlightSchedule({ flight, crewOptions, reloadFlights }) {
     try {
       await resources.flights.assignCrew(flight.code, member, role);
       await reload();
+      setMember('');
       toast('Tripulante adicionado à escala.', 'success');
     } catch (error) {
       toast(error.message, 'error');
@@ -47,9 +48,10 @@ function FlightSchedule({ flight, crewOptions, reloadFlights }) {
   const schedule = async () => {
     setBusy(true);
     try {
-      await resources.flights.setStatus(flight.code, 'PROGRAMADO');
+      const nextStatus = flight.status === 'PLANEJAMENTO' ? 'PROGRAMADO' : 'PLANEJAMENTO';
+      await resources.flights.setStatus(flight.code, nextStatus);
       await reloadFlights();
-      toast('Voo programado.', 'success');
+      toast(nextStatus === 'PROGRAMADO' ? 'Voo programado.' : 'Voo reaberto para planejamento.', 'success');
     } catch (error) {
       toast(error.message, 'error');
     } finally {
@@ -78,11 +80,11 @@ function FlightSchedule({ flight, crewOptions, reloadFlights }) {
       {assigned.length > 0 && <ul className="divide-y divide-slate-700">
         {assigned.map((item) => <li key={item.cpf} className="py-2 flex items-center justify-between text-sm">
           <span className="text-slate-200">{item.nome} <span className="text-slate-500">· {item.funcao_no_voo}</span></span>
-          <button type="button" onClick={() => remove(item.cpf)} className="text-xs text-rose-400 hover:text-rose-300">Remover</button>
+          {flight.status === 'PLANEJAMENTO' && <button type="button" onClick={() => remove(item.cpf)} className="text-xs text-rose-400 hover:text-rose-300">Remover</button>}
         </li>)}
       </ul>}
 
-      <form onSubmit={assign} className="flex flex-wrap gap-2">
+      {flight.status === 'PLANEJAMENTO' && <form onSubmit={assign} className="flex flex-wrap gap-2">
         <select required value={member} onChange={(event) => setMember(event.target.value)} className="flex-1 min-w-40 bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white">
           <option value="">Selecionar tripulante</option>
           {available.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -91,9 +93,9 @@ function FlightSchedule({ flight, crewOptions, reloadFlights }) {
           {ROLES.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
         <button disabled={busy || !available.length} className="px-3 py-2 rounded-lg bg-slate-700 text-xs text-white disabled:opacity-50">Adicionar</button>
-      </form>
+      </form>}
 
-      {flight.status === 'PLANEJAMENTO' && <button type="button" disabled={busy} onClick={schedule} className="px-3 py-2 rounded-lg bg-decolae-600 text-xs text-white disabled:opacity-50">Programar voo</button>}
+      {(flight.status === 'PLANEJAMENTO' || flight.status === 'PROGRAMADO') && <button type="button" disabled={busy} onClick={schedule} className="px-3 py-2 rounded-lg bg-decolae-600 text-xs text-white disabled:opacity-50">{flight.status === 'PLANEJAMENTO' ? 'Programar voo' : 'Reabrir planejamento'}</button>}
     </article>
   );
 }

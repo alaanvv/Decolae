@@ -63,7 +63,7 @@ O banco de dados contém oito tabelas principais.
 | `cliente` | Armazena os dados de identificação e contato dos clientes. |
 | `usuario` | Armazena as credenciais, os nomes e os tipos de usuário. |
 | `trajeto` | Representa as ligações entre cidades de origem e destino. |
-| `aeronave` | Registra os modelos, as identificações, as capacidades e os status das aeronaves. |
+| `aeronave` | Registra os modelos, as identificações e as capacidades das aeronaves. O status atual é calculado pelos horários dos voos ativos. |
 | `tripulante` | Armazena os dados dos profissionais da tripulação. |
 | `voo` | Registra os voos, seus horários, status, trajetos e aeronaves. |
 | `passagem` | Representa as passagens emitidas, seus assentos, preços, clientes e voos. |
@@ -99,16 +99,16 @@ Embora parte das validações já esteja implementada, algumas regras previstas 
 
 | Regra | Situação |
 |---|---|
-| Impedir a emissão de passagens acima da capacidade | Possui validação por trigger. |
-| Evitar a ocupação duplicada de assentos | Possui validação e restrição de unicidade; o tratamento de assentos liberados por cancelamento precisa ser ajustado. |
-| Impedir emissão em estados inadequados do voo | Possui validação por trigger. |
-| Impedir associação de voos a aeronaves em manutenção ou inativas | Possui validação por trigger. |
-| Exigir tripulação mínima ao programar um voo | Possui validação por trigger na mudança de status. |
-| Impedir sobreposição de horários para a mesma aeronave | Pendente. |
-| Impedir escalas incompatíveis para um tripulante | Pendente. |
-| Garantir o descanso mínimo de 36 horas após o limite de trabalho previsto | Pendente. |
-| Impedir a compra de passagens para voos com horários incompatíveis para o cliente | Pendente. |
-| Garantir a consistência das compras em transações concorrentes | Necessita de aprimoramento. |
+| Impedir a emissão de passagens acima da capacidade | Trigger bloqueia emissões acima da capacidade e serializa compras por voo. |
+| Evitar a ocupação duplicada de assentos | Trigger e índice único parcial impedem assento duplicado; cancelamentos liberam o assento. |
+| Impedir emissão em estados inadequados do voo | Trigger permite emissão somente em voos programados ou atrasados. |
+| Exibir o status atual da aeronave | A API calcula `OPERANDO` durante um voo ativo e `DISPONIVEL` nos demais períodos. |
+| Exigir tripulação mínima ao programar um voo | Trigger valida comandante, copiloto e dois comissários ao programar; também protege a escala de voos programados. |
+| Impedir sobreposição de horários para a mesma aeronave | Trigger serializa as alocações e rejeita períodos sobrepostos. |
+| Impedir escalas incompatíveis para um tripulante | Trigger rejeita sobreposição de voos e blocos de trabalho acima de 12 horas sem intervalo de 36 horas. |
+| Garantir o descanso mínimo de 36 horas após o limite de trabalho previsto | O bloco de trabalho do tripulante é reiniciado após 36 horas sem voo; acima de 12 horas no bloco, a escala é rejeitada. |
+| Impedir a compra de passagens para voos com horários incompatíveis para o cliente | Trigger rejeita passagens emitidas com horários sobrepostos. |
+| Garantir a consistência das compras em transações concorrentes | Compras bloqueiam o voo e o cliente durante a validação, além da unicidade parcial por assento. |
 
 A identificação dessas pendências orienta os próximos passos de desenvolvimento. Em particular, as validações de concorrência devem considerar que operações simultâneas podem consultar o mesmo estado do banco antes de efetuar alterações.
 
@@ -131,7 +131,7 @@ Elaboramos um script SQL de povoamento inicial (`seed.sql`) com dados fictícios
 | `TRIPULACAO_VOO` | 12 |
 | `PASSAGEM` | 6 |
 
-Cadastramos cenários com aeronaves ativas e em manutenção, além de voos nos status `PROGRAMADO` e `PLANEJAMENTO` para testar os bloqueios de emissão.
+Cadastramos diferentes aeronaves e voos nos status `PROGRAMADO` e `PLANEJAMENTO` para testar a disponibilidade e os bloqueios de emissão.
 
 ---
 
@@ -267,15 +267,12 @@ Contém as abas para gestão de rotas/trajetos, frota de aeronaves e escalas da 
 
 # 8. Estado atual e próximos passos
 
-Atualmente, a estrutura do banco de dados, o script de povoamento e as rotas da API estão integrados com o frontend (com exceção do fluxo final de reserva de passagens, que ainda simula a resposta na interface).
+Atualmente, o fluxo de compra, consulta e cancelamento de passagens usa a API e o banco de dados. O preço padrão é configurável por `TICKET_PRICE`.
 
 Para a entrega final, vamos focar nos seguintes pontos:
 
-- Finalizar os triggers de verificação de choque de horários (aeronaves e tripulantes).
-- Implementar as regras de descanso mínimo para a tripulação.
-- Ajustar o tratamento de concorrência na compra simultânea de assentos.
-- Concluir a integração total do fluxo de reservas com o banco de dados.
-- Realizar os testes de integração e validação de permissões por perfil.
+- Executar testes de integração no PostgreSQL para as regras de escala, descanso, disponibilidade e concorrência.
+- Integrar um provedor de pagamento caso a compra precise processar pagamentos externos.
 
 Essas atividades buscam garantir que a versão final seja capaz de atender aos requisitos funcionais e às restrições operacionais do sistema.
 

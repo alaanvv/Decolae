@@ -103,10 +103,14 @@ export default async (app) => {
       return reply.code(201).send(result.rows[0])
     } catch (error) {
       if (transaction) await client.query('ROLLBACK')
-      if (error.code === '23505')
+      if (error.code === '23505' && error.constraint === 'passagem_assento_ativo_unico')
         return reply.code(409).send({ erro: 'Este assento acabou de ser reservado por outra pessoa.' })
-      if (error.code === 'P0001')
-        return reply.code(409).send({ erro: error.message })
+      if (error.code === '23505' && error.constraint === 'passagem_pkey')
+        return reply.code(409).send({ erro: 'Não foi possível gerar um número único para a passagem. Tente novamente.' })
+      if (error.code === '23505')
+        return reply.code(409).send({ erro: 'A passagem não pôde ser registrada por conflito com outro cadastro.' })
+      if (error.code === '23514' || error.code === '23P01' || error.code === 'P0001')
+        return reply.code(error.code === '23P01' ? 409 : 400).send({ erro: error.message })
       throw error
     } finally {
       client.release()

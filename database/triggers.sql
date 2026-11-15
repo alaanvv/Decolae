@@ -1,121 +1,322 @@
-set search_path to decolae;
+SET search_path TO decolae;
 
--- Verifica condições para marcar uma passagem
-create or replace function verifica_disponibilidade_voo()
-returns trigger as $$
-declare
-  v_capacidade int;
-  v_ocupados int;
-begin
-  -- Checa se o voo ainda pode emitir passagens
-  if exists (
-    select 1
-    from VOO
-    where numero_voo = new.numero_voo and status not in ('PROGRAMADO', 'ATRASADO')
-  ) then
-    raise exception 'Não é possível emitir passagens para voos nesse status';
-  end if;
-  
-  -- Checa se o assento esta vazio
-  if exists (
-    select 1
-    from PASSAGEM
-    where numero_voo = new.numero_voo and numero_assento = new.numero_assento and status <> 'CANCELADA' and numero_bilhete <> new.numero_bilhete
-  ) then
-    raise exception 'O assento % ja esta ocupado', new.numero_assento;
-  end if;
-  
-  -- Pega a quantidade de assentos da aeronave escalada para aquele voo
-  select A.quantidade_assentos
-  into v_capacidade
-  from VOO V join AERONAVE A on V.id_aeronave = A.identificacao
-  where V.numero_voo = new.numero_voo;
-  
-  -- Conta as passagens válidas excluindo a nova passagem
-  select count(*)
-  into v_ocupados
-  from PASSAGEM
-  where numero_voo = new.numero_voo and status = 'EMITIDA' and numero_bilhete <> new.numero_bilhete;
-  
-  -- Verifica se voo está lotado
-  if v_ocupados >= v_capacidade then
-    raise exception 'Voo lotado';
-  end if;
-  
-  -- Verifica se o numero do assento e válido
-  if new.numero_assento < 1 or new.numero_assento > v_capacidade then
-    raise exception 'Número de assento inválido';
-  end if;
+-- Emissões serializadas por voo e cliente para impedir sobrelotação, duplicidade
+-- de assento e compras simultâneas de voos com horários incompatíveis.
+CREATE OR REPLACE FUNCTION verifica_disponibilidade_voo()
+RETURNS trigger AS $$
+DECLARE
+  v_capacidade integer;
+  v_ocupados integer;
+  v_inicio timestamptz;
+  v_fim timestamptz;
+BEGIN
+  SELECT v.previsao_partida, v.previsao_chegada, a.quantidade_assentos
+  INTO v_inicio, v_fim, v_capacidade
+  FROM voo v
+  JOIN aeronave a ON a.identificacao = v.id_aeronave
+  WHERE v.numero_voo = NEW.numero_voo
+    AND v.status IN ('PROGRAMADO', 'ATRASADO')
+  FOR UPDATE OF v;
 
-  return new;
-end;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Não é possível emitir passagens para voos nesse status'
+      USING ERRCODE = '23514';
+  END IF;
 
-$$ language plpgsql;
+  IF NEW.numero_assento < 1 OR NEW.numero_assento > v_capacidade THEN
+    RAISE EXCEPTION 'Número de assento inválido' USING ERRCODE = '23514';
+  END IF;
 
-create trigger trigger_disponibilidade_voo
-before insert or update on PASSAGEM
-for each row
-when (new.status = 'EMITIDA')
-execute function verifica_disponibilidade_voo();
+  PERFORM 1 FROM cliente WHERE cpf = NEW.cpf_cliente FOR UPDATE;
 
--- Verifica se uma aeronave está em manutenção pra comprar uma passagem
-create or replace function verifica_aeronave_disponivel()
-returns trigger as $$
-begin
-  if exists (
-    select 1
-    from AERONAVE
-    where identificacao = new.id_aeronave and status in ('MANUTENCAO', 'INATIVA')
-  ) then
-    raise exception 'Aeronave inativa ou em manutenção';
-  end if;
+  IF EXISTS (
+    SELECT 1 FROM passagem p
+    WHERE p.numero_voo = NEW.numero_voo
+      AND p.numero_assento = NEW.numero_assento
+      AND p.status <> 'CANCELADA'
+      AND p.numero_bilhete <> NEW.numero_bilhete
+  ) THEN
+    RAISE EXCEPTION 'O assento % já está ocupado', NEW.numero_assento
+      USING ERRCODE = '23505';
+  END IF;
 
-  return new;
-end;
+  SELECT count(*) INTO v_ocupados
+  FROM passagem p
+  WHERE p.numero_voo = NEW.numero_voo
+    AND p.status <> 'CANCELADA'
+    AND p.numero_bilhete <> NEW.numero_bilhete;
 
-$$ language plpgsql;
+  IF v_ocupados >= v_capacidade THEN
+    RAISE EXCEPTION 'Voo lotado' USING ERRCODE = '23514';
+  END IF;
 
-create trigger trigger_aeronave_disponivel
-before insert or update on VOO
-for each row
-execute function verifica_aeronave_disponivel();
+  IF EXISTS (
+    SELECT 1
+    FROM passagem p
+    JOIN voo outro ON outro.numero_voo = p.numero_voo
+    WHERE p.cpf_cliente = NEW.cpf_cliente
+      AND p.status = 'EMITIDA'
+      AND p.numero_bilhete <> NEW.numero_bilhete
+      AND outro.numero_voo <> NEW.numero_voo
+      AND outro.previsao_partida < v_fim
+      AND v_inicio < outro.previsao_chegada
+  ) THEN
+    RAISE EXCEPTION 'Você já tem uma passagem para um voo com horário sobreposto'
+      USING ERRCODE = '23P01';
+  END IF;
 
--- Garante que um voo programado tenha pelo menos 1 comandante, 1 copiloto e 2 comissários
-create or replace function verifica_tripulacao_completa()
-returns trigger as $$
-begin
-  if new.status = 'PROGRAMADO'
-    and old.status is distinct from new.status
-  then
-    if (
-      select count(*)
-      from TRIPULACAO_VOO
-      where numero_voo = new.numero_voo
-      and funcao_no_voo = 'COPILOTO'
-    ) < 1
-    or (
-      select count(*)
-      from TRIPULACAO_VOO
-      where numero_voo = new.numero_voo
-      and funcao_no_voo = 'COMANDANTE'
-    ) < 1
-    or (
-      select count(*)
-      from TRIPULACAO_VOO
-      where numero_voo = new.numero_voo
-      and funcao_no_voo = 'COMISSARIO'
-    ) < 2
-    then
-      raise exception 'Tripulação incompleta para programar voo %',
-      new.numero_voo;
-    end if;
-  end if;
-  return new;
+  RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
 
-$$ language plpgsql;
+DROP TRIGGER IF EXISTS trigger_disponibilidade_voo ON passagem;
+CREATE TRIGGER trigger_disponibilidade_voo
+BEFORE INSERT OR UPDATE ON passagem
+FOR EACH ROW
+WHEN (NEW.status = 'EMITIDA')
+EXECUTE FUNCTION verifica_disponibilidade_voo();
 
-create trigger trigger_tripulacao_completa
-before update of status on VOO
-for each row
-execute function verifica_tripulacao_completa();
+CREATE OR REPLACE FUNCTION valida_conflito_aeronave()
+RETURNS trigger AS $$
+BEGIN
+  -- Serializa alocações na mesma aeronave antes de verificar a sobreposição.
+  PERFORM 1 FROM aeronave WHERE identificacao = NEW.id_aeronave FOR UPDATE;
+  IF EXISTS (
+    SELECT 1 FROM voo v
+    WHERE v.id_aeronave = NEW.id_aeronave
+      AND v.numero_voo <> NEW.numero_voo
+      AND v.status NOT IN ('CANCELADO', 'CONCLUIDO')
+      AND v.previsao_partida < NEW.previsao_chegada
+      AND NEW.previsao_partida < v.previsao_chegada
+  ) THEN
+    RAISE EXCEPTION 'A aeronave já está alocada em um voo com horário sobreposto'
+      USING ERRCODE = '23P01';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_conflito_aeronave ON voo;
+CREATE TRIGGER trigger_conflito_aeronave
+BEFORE INSERT OR UPDATE OF id_aeronave, previsao_partida, previsao_chegada ON voo
+FOR EACH ROW
+EXECUTE FUNCTION valida_conflito_aeronave();
+
+CREATE OR REPLACE FUNCTION valida_horario_tripulante(
+  p_cpf char(11), p_voo varchar(10), p_inicio timestamptz, p_fim timestamptz
+)
+RETURNS void AS $$
+DECLARE
+  v_sobrecarga boolean;
+BEGIN
+  PERFORM 1 FROM tripulante WHERE cpf = p_cpf FOR UPDATE;
+
+  IF EXISTS (
+    SELECT 1
+    FROM tripulacao_voo tv
+    JOIN voo v ON v.numero_voo = tv.numero_voo
+    WHERE tv.cpf_tripulante = p_cpf
+      AND tv.numero_voo <> p_voo
+      AND v.previsao_partida < p_fim
+      AND p_inicio < v.previsao_chegada
+  ) THEN
+    RAISE EXCEPTION 'Tripulante já está escalado em um voo com horário sobreposto'
+      USING ERRCODE = '23P01';
+  END IF;
+
+  -- Um bloco de trabalho termina após 36 horas sem outro voo. O total de voo
+  -- dentro de cada bloco não pode ultrapassar 12 horas.
+  WITH escala AS (
+    SELECT v.previsao_partida AS inicio, v.previsao_chegada AS fim
+    FROM tripulacao_voo tv
+    JOIN voo v ON v.numero_voo = tv.numero_voo
+    WHERE tv.cpf_tripulante = p_cpf AND tv.numero_voo <> p_voo
+    UNION ALL
+    SELECT p_inicio, p_fim
+  ), ordenada AS (
+    SELECT inicio, fim,
+           lag(fim) OVER (ORDER BY inicio, fim) AS fim_anterior
+    FROM escala
+  ), blocos AS (
+    SELECT inicio, fim,
+           sum(CASE WHEN fim_anterior IS NULL OR inicio - fim_anterior >= interval '36 hours'
+                    THEN 1 ELSE 0 END)
+             OVER (ORDER BY inicio, fim) AS bloco
+    FROM ordenada
+  ), carga AS (
+    SELECT bloco, sum(extract(epoch FROM (fim - inicio)) / 3600.0) AS horas
+    FROM blocos
+    GROUP BY bloco
+  )
+  SELECT coalesce(bool_or(horas > 12), false) INTO v_sobrecarga FROM carga;
+
+  IF v_sobrecarga THEN
+    RAISE EXCEPTION 'A escala excede 12 horas de trabalho sem o descanso mínimo de 36 horas'
+      USING ERRCODE = '23P01';
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION valida_escala_tripulante()
+RETURNS trigger AS $$
+DECLARE
+  v_inicio timestamptz;
+  v_fim timestamptz;
+BEGIN
+  SELECT previsao_partida, previsao_chegada INTO v_inicio, v_fim
+  FROM voo WHERE numero_voo = NEW.numero_voo;
+  IF FOUND THEN
+    PERFORM valida_horario_tripulante(NEW.cpf_tripulante, NEW.numero_voo, v_inicio, v_fim);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_escala_tripulante ON tripulacao_voo;
+CREATE TRIGGER trigger_escala_tripulante
+BEFORE INSERT OR UPDATE ON tripulacao_voo
+FOR EACH ROW
+EXECUTE FUNCTION valida_escala_tripulante();
+
+CREATE OR REPLACE FUNCTION valida_agenda_voo()
+RETURNS trigger AS $$
+DECLARE
+  r record;
+BEGIN
+  FOR r IN
+    SELECT cpf_tripulante FROM tripulacao_voo
+    WHERE numero_voo = NEW.numero_voo ORDER BY cpf_tripulante
+  LOOP
+    PERFORM valida_horario_tripulante(r.cpf_tripulante, NEW.numero_voo,
+                                      NEW.previsao_partida, NEW.previsao_chegada);
+  END LOOP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_agenda_voo ON voo;
+CREATE TRIGGER trigger_agenda_voo
+BEFORE UPDATE OF previsao_partida, previsao_chegada ON voo
+FOR EACH ROW
+EXECUTE FUNCTION valida_agenda_voo();
+
+CREATE OR REPLACE FUNCTION valida_passageiros_agenda_voo()
+RETURNS trigger AS $$
+DECLARE
+  r record;
+BEGIN
+  FOR r IN
+    SELECT DISTINCT cpf_cliente FROM passagem
+    WHERE numero_voo = NEW.numero_voo AND status = 'EMITIDA'
+    ORDER BY cpf_cliente
+  LOOP
+    PERFORM 1 FROM cliente WHERE cpf = r.cpf_cliente FOR UPDATE;
+    IF EXISTS (
+      SELECT 1
+      FROM passagem p
+      JOIN voo outro ON outro.numero_voo = p.numero_voo
+      WHERE p.cpf_cliente = r.cpf_cliente
+        AND p.status = 'EMITIDA'
+        AND p.numero_voo <> NEW.numero_voo
+        AND outro.previsao_partida < NEW.previsao_chegada
+        AND NEW.previsao_partida < outro.previsao_chegada
+    ) THEN
+      RAISE EXCEPTION 'A alteração cria conflito de horário com uma passagem emitida para o cliente %', r.cpf_cliente
+        USING ERRCODE = '23P01';
+    END IF;
+  END LOOP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_agenda_passageiros ON voo;
+CREATE TRIGGER trigger_agenda_passageiros
+BEFORE UPDATE OF previsao_partida, previsao_chegada ON voo
+FOR EACH ROW
+EXECUTE FUNCTION valida_passageiros_agenda_voo();
+
+CREATE OR REPLACE FUNCTION verifica_tripulacao_completa()
+RETURNS trigger AS $$
+DECLARE
+  v_comandantes integer;
+  v_copilotos integer;
+  v_comissarios integer;
+BEGIN
+  IF NEW.status = 'PROGRAMADO'
+     AND (TG_OP = 'INSERT' OR OLD.status IS DISTINCT FROM NEW.status) THEN
+    SELECT count(*) FILTER (WHERE funcao_no_voo = 'COMANDANTE'),
+           count(*) FILTER (WHERE funcao_no_voo = 'COPILOTO'),
+           count(*) FILTER (WHERE funcao_no_voo = 'COMISSARIO')
+    INTO v_comandantes, v_copilotos, v_comissarios
+    FROM tripulacao_voo WHERE numero_voo = NEW.numero_voo;
+
+    IF v_comandantes < 1 OR v_copilotos < 1 OR v_comissarios < 2 THEN
+      RAISE EXCEPTION 'Tripulação incompleta para programar voo %', NEW.numero_voo
+        USING ERRCODE = '23514';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_tripulacao_completa ON voo;
+CREATE TRIGGER trigger_tripulacao_completa
+BEFORE INSERT OR UPDATE OF status ON voo
+FOR EACH ROW
+EXECUTE FUNCTION verifica_tripulacao_completa();
+
+CREATE OR REPLACE FUNCTION impede_remocao_tripulacao_minima()
+RETURNS trigger AS $$
+DECLARE
+  v_status status_voo;
+  v_comandantes integer;
+  v_copilotos integer;
+  v_comissarios integer;
+BEGIN
+  SELECT status INTO v_status FROM voo WHERE numero_voo = OLD.numero_voo;
+  IF v_status = 'PROGRAMADO' THEN
+    SELECT count(*) FILTER (WHERE funcao_no_voo = 'COMANDANTE'),
+           count(*) FILTER (WHERE funcao_no_voo = 'COPILOTO'),
+           count(*) FILTER (WHERE funcao_no_voo = 'COMISSARIO')
+    INTO v_comandantes, v_copilotos, v_comissarios
+    FROM tripulacao_voo
+    WHERE numero_voo = OLD.numero_voo
+      AND (numero_voo, cpf_tripulante) <> (OLD.numero_voo, OLD.cpf_tripulante);
+    IF v_comandantes < 1 OR v_copilotos < 1 OR v_comissarios < 2 THEN
+      RAISE EXCEPTION 'Reabra o voo para planejamento antes de remover a tripulação mínima'
+        USING ERRCODE = '23514';
+    END IF;
+  END IF;
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_protege_tripulacao_minima ON tripulacao_voo;
+CREATE TRIGGER trigger_protege_tripulacao_minima
+BEFORE DELETE ON tripulacao_voo
+FOR EACH ROW
+EXECUTE FUNCTION impede_remocao_tripulacao_minima();
+
+CREATE OR REPLACE FUNCTION impede_reducao_aeronave_abaixo_assentos_vendidos()
+RETURNS trigger AS $$
+DECLARE
+  v_maior_assento integer;
+BEGIN
+  IF NEW.quantidade_assentos < OLD.quantidade_assentos THEN
+    SELECT max(p.numero_assento) INTO v_maior_assento
+    FROM passagem p JOIN voo v ON v.numero_voo = p.numero_voo
+    WHERE v.id_aeronave = OLD.identificacao AND p.status <> 'CANCELADA';
+    IF v_maior_assento > NEW.quantidade_assentos THEN
+      RAISE EXCEPTION 'A capacidade não pode ficar abaixo de um assento já vendido'
+        USING ERRCODE = '23514';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_capacidade_aeronave_vendida ON aeronave;
+CREATE TRIGGER trigger_capacidade_aeronave_vendida
+BEFORE UPDATE OF quantidade_assentos ON aeronave
+FOR EACH ROW
+EXECUTE FUNCTION impede_reducao_aeronave_abaixo_assentos_vendidos();

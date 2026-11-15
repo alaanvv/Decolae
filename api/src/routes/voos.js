@@ -80,6 +80,12 @@ export default async (app) => {
       if (error.code === '23503')
         return reply.code(400).send({ erro: 'Trajeto ou aeronave inexistente' })
 
+      if (error.code === '23514')
+        return reply.code(400).send({ erro: error.message })
+
+      if (error.code === '23P01')
+        return reply.code(409).send({ erro: error.message })
+
       if (error.code === '22P02')
         return reply.code(400).send({ erro: 'Valor inválido para um dos campos' })
 
@@ -116,6 +122,7 @@ export default async (app) => {
       if (error.code === '23505') return reply.code(409).send({ erro: 'Esse tripulante já está na escala deste voo.' })
       if (error.code === '23503') return reply.code(404).send({ erro: 'Voo ou tripulante não encontrado.' })
       if (error.code === '22P02') return reply.code(400).send({ erro: 'Função de tripulante inválida.' })
+      if (error.code === '23P01') return reply.code(409).send({ erro: error.message })
       throw error
     }
   })
@@ -143,26 +150,29 @@ export default async (app) => {
       return result.rows[0]
     } catch (error) {
       if (error.code === '22P02') return reply.code(400).send({ erro: 'Status de voo inválido.' })
-      if (error.code === 'P0001') return reply.code(400).send({ erro: error.message })
+      if (error.code === 'P0001' || error.code === '23514' || error.code === '23P01')
+        return reply.code(error.code === '23P01' ? 409 : 400).send({ erro: error.message })
       throw error
     }
   })
 
-  app.get('/:numero_voo', { preHandler: requireAuth }, async (request, reply) => {
+  app.get('/:numero_voo', { preHandler: requireRole('GERENTE', 'ADMINISTRADOR') }, async (request, reply) => {
     const { numero_voo } = request.params
 
     const result = await db.query(`
-      SELECT *
+      SELECT v.numero_voo, v.status, v.previsao_partida, v.previsao_chegada,
+             v.id_trajeto, v.id_aeronave, t.cidade_origem, t.cidade_destino,
+             a.modelo AS modelo_aeronave, a.quantidade_assentos,
+             coalesce(json_agg(json_build_object(
+               'cpf', tr.cpf, 'nome', tr.nome, 'funcao', tv.funcao_no_voo
+             )) FILTER (WHERE tr.cpf IS NOT NULL), '[]'::json) AS tripulacao
       FROM voo v
-      JOIN aeronave a
-        ON a.identificacao = v.id_aeronave
-      JOIN trajeto t
-        ON t.id_trajeto = v.id_trajeto
-      JOIN tripulacao_voo tv
-        ON tv.numero_voo = v.numero_voo
-      JOIN tripulante tr
-        ON tr.cpf = tv.cpf_tripulante
+      JOIN aeronave a ON a.identificacao = v.id_aeronave
+      JOIN trajeto t ON t.id_trajeto = v.id_trajeto
+      LEFT JOIN tripulacao_voo tv ON tv.numero_voo = v.numero_voo
+      LEFT JOIN tripulante tr ON tr.cpf = tv.cpf_tripulante
       WHERE v.numero_voo = $1
+      GROUP BY v.numero_voo, t.id_trajeto, a.identificacao
     `, [numero_voo])
 
     if (result.rows.length === 0) {

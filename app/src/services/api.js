@@ -61,7 +61,6 @@ export const resources = {
       identificacao: v.code.trim().toUpperCase(),
       modelo: v.model.trim(),
       quantidade_assentos: Number(v.capacity),
-      status: v.status,
     }),
     remove: (id) => remove(`/aeronaves/${encodeURIComponent(id)}`),
   },

@@ -45,11 +45,11 @@ INSERT INTO TRAJETO
 -- =========================================
 
 INSERT INTO AERONAVE
-(identificacao, modelo, quantidade_assentos, status) VALUES
-('PT-ABC', 'Boeing 737', 180, 'DISPONIVEL'),
-('PT-DEF', 'Airbus A320', 150, 'DISPONIVEL'),
-('PT-GHI', 'Embraer E195', 120, 'MANUTENCAO'),
-('PT-JKL', 'ATR 72', 70, 'INATIVA');
+(identificacao, modelo, quantidade_assentos) VALUES
+('PT-ABC', 'Boeing 737', 180),
+('PT-DEF', 'Airbus A320', 150),
+('PT-GHI', 'Embraer E195', 120),
+('PT-JKL', 'ATR 72', 70);
 
 -- =========================================
 -- 5. TRIPULANTES

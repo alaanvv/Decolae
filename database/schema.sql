@@ -8,13 +8,6 @@ CREATE TYPE tipo_usuario AS ENUM (
     'CLIENTE'
 );
 
-CREATE TYPE status_aeronave AS ENUM (
-    'DISPONIVEL',
-    'MANUTENCAO',
-    'OPERANDO',
-    'INATIVA'
-);
-
 CREATE TYPE status_voo AS ENUM (
     'PLANEJAMENTO',
     'PROGRAMADO',
@@ -54,7 +47,6 @@ CREATE TABLE AERONAVE (
   identificacao char(6) PRIMARY key,
   modelo varchar(20) NOT NULL,
   quantidade_assentos int NOT NULL,
-  status status_aeronave NOT NULL DEFAULT 'DISPONIVEL',
   CONSTRAINT check_quantidade_assentos CHECK (quantidade_assentos > 0)
 );
 

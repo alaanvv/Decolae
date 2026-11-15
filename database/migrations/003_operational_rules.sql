@@ -1,0 +1,1 @@
+\ir ../triggers.sql

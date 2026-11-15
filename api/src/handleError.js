@@ -2,6 +2,7 @@ const databaseErrors = {
   '23502': [400, 'Um ou mais campos obrigatórios estão ausentes.'],
   '23503': [400, 'Um dos registros relacionados não existe.'],
   '23514': [400, 'Os dados informados não atendem às regras do cadastro.'],
+  '23P01': [409, 'Existe um conflito de horário ou escala.'],
   '22P02': [400, 'Um ou mais campos têm um formato inválido.'],
   '22001': [400, 'Um ou mais campos excedem o tamanho permitido.'],
   '22003': [400, 'Um ou mais valores estão fora do intervalo permitido.'],

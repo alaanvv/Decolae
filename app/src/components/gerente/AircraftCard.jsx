@@ -13,7 +13,7 @@ export default function AircraftCard({ aircraft: a, onDelete, onEdit }) {
       </div>
       <div className="pt-3 border-t border-slate-700/50 text-xs text-slate-400 flex justify-between">
         <i className="fa-solid fa-users text-decolae-400 mr-1" /> {a.capacity} Assentos
-        <span>{a.status}</span>
+        <span>{a.status === 'OPERANDO' ? 'Em voo' : 'Disponível'}</span>
       </div>
     </div>
   );

@@ -7,7 +7,6 @@ export default function useAircraftForm(onClose, aircraft) {
     code: aircraft?.code ?? '',
     model: aircraft?.model ?? '',
     capacity: aircraft?.capacity ?? '',
-    status: aircraft?.status ?? 'DISPONIVEL',
   });
 
   const submit = async (e) => {
