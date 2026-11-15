@@ -3,36 +3,32 @@ import { resources } from '../services/api';
 import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
 
-const KEY = 'decolae_reservations';
-const COLLECTIONS = Object.keys(resources);
-const DataCtx = createContext(null);
-
-const loadReservations = () => {
-  try {
-    return JSON.parse(localStorage.getItem(KEY)) || [];
-  } catch {
-    return [];
-  }
+const COLLECTIONS = {
+  cliente: ['flights', 'passages'],
+  gerente: ['routes', 'aircrafts', 'crew', 'flights'],
+  admin: ['routes', 'aircrafts', 'flights'],
 };
+const DataCtx = createContext(null);
 
 export function DataProvider({ children }) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [data, setData] = useState({ routes: [], aircrafts: [], crew: [], flights: [], reservations: loadReservations() });
+  const [data, setData] = useState({ routes: [], aircrafts: [], crew: [], flights: [], passages: [] });
   const [loading, setLoading] = useState(false);
 
   const reload = useCallback(
-    async (cols = COLLECTIONS) => {
-      const results = await Promise.allSettled(cols.map((c) => resources[c].list()));
+    async (cols) => {
+      const selected = cols ?? COLLECTIONS[user?.type] ?? [];
+      const results = await Promise.allSettled(selected.map((c) => resources[c].list()));
       setData((d) => {
         const next = { ...d };
-        results.forEach((r, i) => { if (r.status === 'fulfilled') next[cols[i]] = r.value; });
+        results.forEach((r, i) => { if (r.status === 'fulfilled') next[selected[i]] = r.value; });
         return next;
       });
       const failed = results.find((r) => r.status === 'rejected');
       if (failed) toast(failed.reason.message, 'error');
     },
-    [toast]
+    [toast, user?.type]
   );
 
   // Carrega tudo da API assim que o usuário entra.
@@ -41,10 +37,6 @@ export function DataProvider({ children }) {
     setLoading(true);
     reload().finally(() => setLoading(false));
   }, [user, reload]);
-
-  useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify(data.reservations));
-  }, [data.reservations]);
 
   // Cria na API, recarrega a coleção e avisa. Retorna true/false.
   const create = async (col, values, successMsg) => {
@@ -83,11 +75,8 @@ export function DataProvider({ children }) {
     }
   };
 
-  const addReservation = (r) => setData((d) => ({ ...d, reservations: [...d.reservations, r] }));
-  const removeReservation = (id) => setData((d) => ({ ...d, reservations: d.reservations.filter((r) => r.id !== id) }));
-
   return (
-    <DataCtx.Provider value={{ data, loading, reload, create, updateEntity, deleteEntity, addReservation, removeReservation }}>
+    <DataCtx.Provider value={{ data, loading, reload, create, updateEntity, deleteEntity }}>
       {children}
     </DataCtx.Provider>
   );

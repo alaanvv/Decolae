@@ -95,8 +95,12 @@ CREATE TABLE VOO (
   CONSTRAINT check_data_valida CHECK (previsao_partida < previsao_chegada)
 );
 
+CREATE SEQUENCE numero_bilhete_seq START WITH 1;
+
 CREATE TABLE PASSAGEM (
-  numero_bilhete char(13) PRIMARY key,
+  numero_bilhete char(13) PRIMARY key DEFAULT (
+    'BIL' || lpad(nextval('decolae.numero_bilhete_seq')::text, 10, '0')
+  ),
   numero_assento int NOT NULL,
   data_compra date NOT NULL,
   preco numeric(10, 2) NOT NULL,
@@ -107,6 +111,10 @@ CREATE TABLE PASSAGEM (
   FOREIGN key (cpf_cliente) REFERENCES CLIENTE (cpf),
   CONSTRAINT check_preco CHECK (preco > 0)
 );
+
+CREATE UNIQUE INDEX passagem_assento_ativo_unico
+  ON PASSAGEM (numero_voo, numero_assento)
+  WHERE status <> 'CANCELADA';
 
 CREATE TABLE TRIPULACAO_VOO (
   numero_voo varchar(10) NOT NULL,

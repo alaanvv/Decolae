@@ -1,11 +1,12 @@
 import useReservations from '../../hooks/useReservations';
+import { formatDate } from '../../utils/formatDate';
 
 export default function ReservationList() {
   const { reservations, cancel } = useReservations();
   return (
     <div className="bg-slate-800/80 p-6 rounded-2xl border border-slate-700/60 shadow-xl">
       <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-        <i className="fa-solid fa-ticket text-emerald-400" /> Minhas Reservas Confirmadas
+        <i className="fa-solid fa-ticket text-emerald-400" /> Minhas Passagens
       </h3>
       <div className="space-y-3">
         {!reservations.length && <p className="text-slate-400 text-xs py-4 text-center">Você ainda não possui bilhetes ou reservas ativas.</p>}
@@ -19,13 +20,14 @@ export default function ReservationList() {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-white">{r.flightCode}</span>
                   <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Assento {r.seat}</span>
+                  <span className="text-xs text-slate-400">{r.status}</span>
                 </div>
                 <p className="text-xs text-slate-300 mt-0.5">{r.origin} ➔ {r.destination}</p>
-                <p className="text-[10px] text-slate-400">Data: {r.departure}</p>
+                <p className="text-[10px] text-slate-400">Partida: {r.departure ? formatDate(r.departure) : '—'} · Compra: {r.purchaseDate} · R$ {Number(r.price).toFixed(2)}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
-              <button onClick={() => cancel(r.id)} className="text-xs text-rose-400 hover:text-rose-300 hover:underline">Cancelar Reserva</button>
+              {r.status === 'EMITIDA' && <button onClick={() => cancel(r)} className="text-xs text-rose-400 hover:text-rose-300 hover:underline">Cancelar passagem</button>}
             </div>
           </div>
         ))}

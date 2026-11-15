@@ -1,31 +1,38 @@
+import { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { useToast } from '../context/ToastContext';
-import { formatDate } from '../utils/formatDate';
+import { resources } from '../services/api';
 
-// A API ainda não tem rotas de reserva: elas ficam salvas localmente (localStorage).
 export default function useReservations() {
-  const { data, addReservation, removeReservation } = useData();
+  const { data, reload } = useData();
   const { toast } = useToast();
+  const [busy, setBusy] = useState(false);
 
-  const book = (flight) => {
-    const row = Math.floor(Math.random() * 25) + 1;
-    const seat = `${row}${'ABCDEF'[Math.floor(Math.random() * 6)]}`;
-    addReservation({
-      id: Date.now(),
-      flightCode: flight.code,
-      origin: flight.origin,
-      destination: flight.destination,
-      departure: formatDate(flight.departure),
-      seat,
-    });
-    toast(`Assento ${seat} reservado com sucesso para o voo ${flight.code}!`, 'success');
+  const book = async (flight, seat) => {
+    setBusy(true);
+    try {
+      await resources.passages.create(flight.code, seat);
+      await reload(['passages', 'flights']);
+      toast(`Passagem emitida para o voo ${flight.code}, assento ${seat}.`, 'success');
+      return true;
+    } catch (error) {
+      toast(error.message, 'error');
+      return false;
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const cancel = (id) => {
-    if (!confirm('Deseja realmente cancelar esta reserva?')) return;
-    removeReservation(id);
-    toast('Reserva cancelada.', 'info');
+  const cancel = async (ticket) => {
+    if (!window.confirm(`Cancelar a passagem ${ticket.id}?`)) return;
+    try {
+      await resources.passages.cancel(ticket.id);
+      await reload(['passages', 'flights']);
+      toast('Passagem cancelada.', 'info');
+    } catch (error) {
+      toast(error.message, 'error');
+    }
   };
 
-  return { reservations: data.reservations, book, cancel };
+  return { reservations: data.passages, book, cancel, busy };
 }

@@ -13,14 +13,28 @@ export default async (app) => {
         v.previsao_chegada,
         v.id_aeronave,
         a.modelo AS modelo_aeronave,
-        a.quantidade_assentos
+        a.quantidade_assentos,
+        COALESCE(seats.livres, ARRAY[]::integer[]) AS assentos_disponiveis,
+        cardinality(COALESCE(seats.livres, ARRAY[]::integer[])) AS quantidade_assentos_disponiveis,
+        $1::numeric AS preco_passagem,
+        (v.status IN ('PROGRAMADO', 'ATRASADO')) AS compra_aberta
       FROM voo v
       JOIN trajeto t
         ON t.id_trajeto = v.id_trajeto
       JOIN aeronave a
         ON a.identificacao = v.id_aeronave
+      LEFT JOIN LATERAL (
+        SELECT array_agg(s.assento ORDER BY s.assento) AS livres
+        FROM generate_series(1, a.quantidade_assentos) AS s(assento)
+        WHERE NOT EXISTS (
+          SELECT 1 FROM passagem p
+          WHERE p.numero_voo = v.numero_voo
+            AND p.numero_assento = s.assento
+            AND p.status <> 'CANCELADA'
+        )
+      ) seats ON true
       ORDER BY v.previsao_partida
-    `)
+    `, [Number(process.env.TICKET_PRICE) > 0 ? Number(process.env.TICKET_PRICE) : 450])
 
     return result.rows
   })

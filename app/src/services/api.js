@@ -84,6 +84,10 @@ export const resources = {
         aircraft: f.id_aeronave ?? f.aeronave,
         aircraftModel: f.modelo_aeronave,
         capacity: f.quantidade_assentos,
+        seatsAvailable: f.assentos_disponiveis ?? [],
+        availableSeats: f.quantidade_assentos_disponiveis ?? 0,
+        canBook: f.compra_aberta,
+        price: Number(f.preco_passagem ?? 450),
         status: f.status,
       })),
     create: (v) =>
@@ -98,6 +102,21 @@ export const resources = {
     assignCrew: (flight, member, role) => post(`/voos/${encodeURIComponent(flight)}/tripulantes`, { cpf_tripulante: member, funcao_no_voo: role }),
     removeCrew: (flight, member) => remove(`/voos/${encodeURIComponent(flight)}/tripulantes/${encodeURIComponent(member)}`),
     setStatus: (flight, status) => patch(`/voos/${encodeURIComponent(flight)}/status`, { status }),
+  },
+  passages: {
+    list: async () => asList(await http('/passagens')).map((p) => ({
+      id: p.numero_bilhete.trim(),
+      seat: p.numero_assento,
+      purchaseDate: p.data_compra,
+      price: Number(p.preco),
+      status: p.status,
+      flightCode: p.numero_voo,
+      origin: p.cidade_origem,
+      destination: p.cidade_destino,
+      departure: p.previsao_partida,
+    })),
+    create: (flight, seat) => post('/passagens', { numero_voo: flight, numero_assento: Number(seat) }),
+    cancel: (id) => patch(`/passagens/${encodeURIComponent(id)}/cancelar`, {}),
   },
 };
 

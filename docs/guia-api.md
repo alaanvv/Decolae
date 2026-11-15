@@ -6,6 +6,7 @@ Execute os comandos na raiz do projeto (`Decolae`).
 
 Copie `api/.env.example` para `api/.env` e configure a conexão com o PostgreSQL. O servidor carrega esse arquivo mesmo quando iniciado a partir da raiz do projeto.
 Defina também um valor aleatório e privado para `SESSION_SECRET`. Para bancos criados antes da autenticação com senha protegida, aplique `psql -d decolae -f database/migrations/001_auth.sql` uma vez. Senhas antigas do seed são convertidas para hash no primeiro login.
+O preço de venda é definido no servidor por `TICKET_PRICE` (padrão `450.00`). Para bancos existentes, aplique também `psql -d decolae -f database/migrations/002_passagens.sql`.
 Pra mim o usuário do banco de dados padrão é `postgres` com a senha sendo a senha do meu usuário do *linux*
 
 1. Instale as dependências dos dois módulos: `npm install`

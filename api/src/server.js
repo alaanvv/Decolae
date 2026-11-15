@@ -8,6 +8,7 @@ import Trajetos from './routes/trajetos.js'
 import Aeronaves from './routes/aeronaves.js'
 import Tripulantes from './routes/tripulantes.js'
 import Auth from './routes/auth.js'
+import Passagens from './routes/passagens.js'
 import handleError from './handleError.js'
 import { getSessionCookie, readSession } from './security.js'
 
@@ -28,6 +29,7 @@ app.register(Trajetos, { prefix: '/api/trajetos' })
 app.register(Aeronaves, { prefix: '/api/aeronaves' })
 app.register(Tripulantes, { prefix: '/api/tripulantes' })
 app.register(Auth, { prefix: '/api/auth' })
+app.register(Passagens, { prefix: '/api/passagens' })
 
 const appDist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../app/dist')
 const contentTypes = {
