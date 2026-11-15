@@ -8,10 +8,14 @@ export default function SearchHero({ filters, onChange, onReset }) {
         <h2 className="text-3xl font-extrabold text-white">Para onde você deseja voar hoje?</h2>
         <p className="text-slate-300 text-sm mt-2">Encontre voos comerciais para os principais destinos com total segurança e comodidade.</p>
       </div>
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-700">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-700">
         <div>
-          <label className="block text-xs font-semibold text-slate-400 mb-1">Origem / Destino</label>
-          <input type="text" value={filters.term} onChange={(e) => onChange('term', e.target.value)} placeholder="Ex: São Paulo ou Rio de Janeiro..." className={inputCls} />
+          <label className="block text-xs font-semibold text-slate-400 mb-1">Origem</label>
+          <input type="text" value={filters.origin} onChange={(e) => onChange('origin', e.target.value)} placeholder="Cidade de origem" className={inputCls} />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-400 mb-1">Destino</label>
+          <input type="text" value={filters.destination} onChange={(e) => onChange('destination', e.target.value)} placeholder="Cidade de destino" className={inputCls} />
         </div>
         <div>
           <label className="block text-xs font-semibold text-slate-400 mb-1">Data Mínima</label>
