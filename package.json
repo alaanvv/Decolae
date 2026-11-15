@@ -1,0 +1,11 @@
+{
+  "name": "decolae",
+  "private": true,
+  "type": "module",
+  "workspaces": ["app", "api"],
+  "scripts": {
+    "dev": "npm run dev --workspace app",
+    "build": "npm run build --workspace app",
+    "start": "npm run build && node api/src/server.js"
+  }
+}

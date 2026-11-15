@@ -7,6 +7,10 @@ A decolaê é uma empresa de voos domésticos, que deseja organizar melhor seus 
 - [Inicializar o banco de dados](docs/guia-banco-de-dados.md)
 - [Rodar API](docs/guia-api.md)
 
+## Executar
+
+Na raiz, rode `npm install` para instalar as dependências. Use `npm start` para compilar a interface e iniciar o servidor integrado em `http://127.0.0.1:3000`. Durante o desenvolvimento, use `npm run dev` para a interface Vite e `npm start --workspace api` para a API.
+
 ---
 
 ## TODO
