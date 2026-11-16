@@ -3,12 +3,14 @@ import RoutesTab from './RoutesTab';
 import AircraftsTab from './AircraftsTab';
 import CrewTab from './CrewTab';
 import SchedulesTab from './SchedulesTab';
+import RulesTestPanel from '../debug/RulesTestPanel';
 
 const TABS = [
   { id: 'trajetos', label: 'Trajetos', icon: 'fa-route', Content: RoutesTab },
   { id: 'aeronaves', label: 'Aeronaves', icon: 'fa-plane text-sm', Content: AircraftsTab },
   { id: 'tripulantes', label: 'Tripulantes', icon: 'fa-id-card', Content: CrewTab },
   { id: 'escalas', label: 'Escalas', icon: 'fa-clipboard-list', Content: SchedulesTab },
+  { id: 'testes', label: 'Testes de regras', icon: 'fa-vial-circle-check', Content: RulesTestPanel },
 ];
 
 export default function GerenteDashboard() {
@@ -20,7 +22,7 @@ export default function GerenteDashboard() {
         <h2 className="text-2xl font-bold text-white">Painel do Gerente Operacional</h2>
         <p className="text-slate-400 text-sm mt-1">Controle de infraestrutura: trajetos rotineiros, frota de aeronaves e escalas da equipe.</p>
       </div>
-      <div className="flex border-b border-slate-700">
+      <div className="flex border-b border-slate-700 overflow-x-auto">
         {TABS.map((t) => (
           <button key={t.id} onClick={() => setActive(t.id)} className={`px-6 py-3 font-semibold text-sm border-b-2 transition flex items-center gap-2 ${active === t.id ? 'border-decolae-500 text-decolae-500' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
             <i className={`fa-solid ${t.icon}`} /> {t.label}

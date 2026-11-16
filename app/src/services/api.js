@@ -136,3 +136,32 @@ export const authApi = {
   logout: () => post('/auth/logout', {}),
   register: (v) => post('/auth/register', { email: v.email, nome: v.nome, senha: v.senha, cpf: v.cpf, telefone: v.telefone }),
 };
+
+// Simulação das regras de negócio (aba "Testes de regras"). A API responde com
+// uma linha JSON por evento enquanto os cenários rodam; onEvento é chamado a cada linha.
+export const debugApi = {
+  runRules: async (onEvento) => {
+    let res;
+    try {
+      res = await fetch(`${BASE}/debug/regras`, { method: 'POST' });
+    } catch {
+      throw new Error('Não foi possível conectar à API.');
+    }
+    if (!res.ok || !res.body) {
+      const json = await res.json().catch(() => null);
+      throw new Error(json?.erro || `Erro ${res.status}`);
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    for (;;) {
+      const { done, value } = await reader.read();
+      buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+      const linhas = buffer.split('\n');
+      buffer = linhas.pop();
+      for (const linha of linhas) if (linha.trim()) onEvento(JSON.parse(linha));
+      if (done) break;
+    }
+    if (buffer.trim()) onEvento(JSON.parse(buffer));
+  },
+};

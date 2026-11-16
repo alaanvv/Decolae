@@ -2,9 +2,11 @@ import { useState } from 'react';
 import AdminStats from './AdminStats';
 import FlightsTable from './FlightsTable';
 import CreateFlightModal from './CreateFlightModal';
+import RulesTestPanel from '../debug/RulesTestPanel';
 
 export default function AdminDashboard() {
   const [creating, setCreating] = useState(false);
+  const [showTests, setShowTests] = useState(false);
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60">
@@ -19,6 +21,11 @@ export default function AdminDashboard() {
       </div>
       <AdminStats />
       <FlightsTable />
+      <button type="button" onClick={() => setShowTests((v) => !v)} className="text-sm text-slate-400 hover:text-slate-200 transition flex items-center gap-2">
+        <i className={`fa-solid ${showTests ? 'fa-chevron-down' : 'fa-chevron-right'} text-xs`} />
+        <i className="fa-solid fa-vial-circle-check" /> Testes de regras de negócio
+      </button>
+      {showTests && <RulesTestPanel />}
       {creating && <CreateFlightModal onClose={() => setCreating(false)} />}
     </div>
   );

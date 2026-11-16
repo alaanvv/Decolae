@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "npm run dev --workspace app",
     "build": "npm run build --workspace app",
-    "start": "npm run build && node api/src/server.js"
+    "start": "npm run build && node api/src/server.js",
+    "debug:regras": "npm run debug:regras --workspace api"
   },
   "dependencies": {
     "@fastify/cors": "^11.3.1",

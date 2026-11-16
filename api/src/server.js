@@ -9,6 +9,7 @@ import Aeronaves from './routes/aeronaves.js'
 import Tripulantes from './routes/tripulantes.js'
 import Auth from './routes/auth.js'
 import Passagens from './routes/passagens.js'
+import Debug from './routes/debug.js'
 import handleError from './handleError.js'
 import { getSessionCookie, readSession } from './security.js'
 
@@ -30,6 +31,7 @@ app.register(Aeronaves, { prefix: '/api/aeronaves' })
 app.register(Tripulantes, { prefix: '/api/tripulantes' })
 app.register(Auth, { prefix: '/api/auth' })
 app.register(Passagens, { prefix: '/api/passagens' })
+app.register(Debug, { prefix: '/api/debug' })
 
 const appDist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../app/dist')
 const contentTypes = {
