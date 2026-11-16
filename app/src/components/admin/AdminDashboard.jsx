@@ -9,12 +9,12 @@ export default function AdminDashboard() {
   const [showTests, setShowTests] = useState(false);
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/60 p-4 sm:p-6 rounded-2xl border border-slate-700/60">
         <div>
-          <h2 className="text-2xl font-bold text-white">Painel do Administrador</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Painel do Administrador</h2>
           <p className="text-slate-400 text-sm mt-1">Gerencie voos ativos, horários e alocação de aeronaves do sistema.</p>
         </div>
-        <button onClick={() => setCreating(true)} className="px-4 py-2.5 bg-decolae-600 hover:bg-decolae-500 text-white rounded-xl font-medium text-sm transition flex items-center gap-2 shadow-lg shadow-decolae-600/20">
+        <button onClick={() => setCreating(true)} className="w-full sm:w-auto justify-center px-4 py-2.5 bg-decolae-600 hover:bg-decolae-500 text-white rounded-xl font-medium text-sm transition flex items-center gap-2 shadow-lg shadow-decolae-600/20">
           <i className="fa-solid fa-plus" />
           <span>Novo Voo</span>
         </button>

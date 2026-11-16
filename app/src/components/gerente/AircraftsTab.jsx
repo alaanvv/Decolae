@@ -10,7 +10,7 @@ export default function AircraftsTab() {
   return (
     <>
       <SectionHeader title="Frota de Aeronaves" buttonLabel="Nova Aeronave" onClick={() => setOpen(true)} />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {aircrafts.map((a) => <AircraftCard key={a.id} aircraft={a} onDelete={() => remove(a)} onEdit={() => setEditing(a)} />)}
       </div>
       {open && <AircraftModal onClose={() => setOpen(false)} />}

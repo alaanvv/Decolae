@@ -13,7 +13,7 @@ export default function FlightsTable() {
   const [editing, setEditing] = useState(null);
 
   const header = (
-    <div className="p-5 border-b border-slate-700/80 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div className="p-4 sm:p-5 border-b border-slate-700/80 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
       <h3 className="text-lg font-bold text-white">Lista Geral de Voos</h3>
       <div className="w-full sm:w-72 relative">
         <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
@@ -35,9 +35,9 @@ export default function FlightsTable() {
               <td className="p-4 text-slate-400">{f.aircraft}</td>
               <td className="p-4"><Badge tone={s.tone}>{s.label}</Badge></td>
               <td className="p-4 text-right">
-                <div className="flex justify-end gap-3">
-                  <button type="button" onClick={() => setEditing(f)} aria-label={`Editar voo ${f.code}`} title="Editar voo" className="text-slate-400 hover:text-decolae-400 transition"><i className="fa-solid fa-pen" /></button>
-                  <button type="button" onClick={() => remove(f)} aria-label={`Remover voo ${f.code}`} title="Remover voo" className="text-slate-400 hover:text-rose-400 transition"><i className="fa-solid fa-trash" /></button>
+                <div className="flex justify-end gap-4">
+                  <button type="button" onClick={() => setEditing(f)} aria-label={`Editar voo ${f.code}`} title="Editar voo" className="w-10 h-10 -m-2 flex items-center justify-center rounded-lg text-slate-400 hover:text-decolae-400 hover:bg-slate-700/40 transition"><i className="fa-solid fa-pen" /></button>
+                  <button type="button" onClick={() => remove(f)} aria-label={`Remover voo ${f.code}`} title="Remover voo" className="w-10 h-10 -m-2 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-700/40 transition"><i className="fa-solid fa-trash" /></button>
                 </div>
               </td>
             </tr>

@@ -18,9 +18,9 @@ export default function LoginScreen() {
   const { mode, setMode, loading, bind, submit } = useLogin();
   const isRegister = mode === 'register';
   return (
-    <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-decolae-900">
-      <div className="w-full max-w-md bg-slate-800/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-slate-700/50">
-        <div className="text-center mb-8">
+    <div className="flex-1 flex items-center justify-center p-4 pt-safe bg-gradient-to-br from-slate-950 via-slate-900 to-decolae-900">
+      <div className="w-full max-w-md bg-slate-800/80 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-2xl border border-slate-700/50">
+        <div className="text-center mb-6 sm:mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-decolae-500/20 text-decolae-500 mb-4 border border-decolae-500/30">
             <i className="fa-solid font-bold fa-plane-departure text-3xl" />
           </div>
@@ -32,7 +32,7 @@ export default function LoginScreen() {
           {isRegister && (
             <>
               <IconInput label="Nome Completo" icon="fa-user" placeholder="Gabriel Silva" {...bind('nome')} />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <IconInput label="CPF" icon="fa-id-card" placeholder="12345678901" {...bind('cpf')} />
                 <IconInput label="Telefone" icon="fa-phone" placeholder="31999999999" {...bind('telefone')} />
               </div>
@@ -46,7 +46,7 @@ export default function LoginScreen() {
           </button>
         </form>
 
-        <button type="button" onClick={() => setMode(isRegister ? 'login' : 'register')} className="mt-4 w-full text-xs text-decolae-400 hover:underline">
+        <button type="button" onClick={() => setMode(isRegister ? 'login' : 'register')} className="mt-4 w-full py-2 text-xs text-decolae-400 hover:underline">
           {isRegister ? 'Já tenho conta — entrar' : 'Não tem conta? Cadastre-se como cliente'}
         </button>
       </div>

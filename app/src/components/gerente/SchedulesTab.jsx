@@ -64,7 +64,7 @@ function FlightSchedule({ flight, crewOptions, reloadFlights }) {
   const counts = Object.fromEntries(ROLES.map((name) => [name, assigned.filter((item) => item.funcao_no_voo === name).length]));
 
   return (
-    <article className="bg-slate-800 p-5 rounded-2xl border border-slate-700/60 space-y-4">
+    <article className="bg-slate-800 p-4 sm:p-5 rounded-2xl border border-slate-700/60 space-y-4">
       <header className="flex flex-wrap justify-between gap-2">
         <div>
           <h3 className="text-white font-bold">{flight.code}: {flight.origin} → {flight.destination}</h3>
@@ -78,9 +78,9 @@ function FlightSchedule({ flight, crewOptions, reloadFlights }) {
       </div>
 
       {assigned.length > 0 && <ul className="divide-y divide-slate-700">
-        {assigned.map((item) => <li key={item.cpf} className="py-2 flex items-center justify-between text-sm">
+        {assigned.map((item) => <li key={item.cpf} className="py-2 flex items-center justify-between gap-3 text-sm">
           <span className="text-slate-200">{item.nome} <span className="text-slate-500">· {item.funcao_no_voo}</span></span>
-          {flight.status === 'PLANEJAMENTO' && <button type="button" onClick={() => remove(item.cpf)} className="text-xs text-rose-400 hover:text-rose-300">Remover</button>}
+          {flight.status === 'PLANEJAMENTO' && <button type="button" onClick={() => remove(item.cpf)} className="shrink-0 px-2 py-1.5 text-xs text-rose-400 hover:text-rose-300">Remover</button>}
         </li>)}
       </ul>}
 
@@ -89,13 +89,13 @@ function FlightSchedule({ flight, crewOptions, reloadFlights }) {
           <option value="">Selecionar tripulante</option>
           {available.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
         </select>
-        <select value={role} onChange={(event) => setRole(event.target.value)} className="bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white">
+        <select value={role} onChange={(event) => setRole(event.target.value)} className="flex-1 sm:flex-none bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white">
           {ROLES.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
-        <button disabled={busy || !available.length} className="px-3 py-2 rounded-lg bg-slate-700 text-xs text-white disabled:opacity-50">Adicionar</button>
+        <button disabled={busy || !available.length} className="w-full sm:w-auto px-3 py-2.5 rounded-lg bg-slate-700 text-xs text-white disabled:opacity-50">Adicionar</button>
       </form>}
 
-      {(flight.status === 'PLANEJAMENTO' || flight.status === 'PROGRAMADO') && <button type="button" disabled={busy} onClick={schedule} className="px-3 py-2 rounded-lg bg-decolae-600 text-xs text-white disabled:opacity-50">{flight.status === 'PLANEJAMENTO' ? 'Programar voo' : 'Reabrir planejamento'}</button>}
+      {(flight.status === 'PLANEJAMENTO' || flight.status === 'PROGRAMADO') && <button type="button" disabled={busy} onClick={schedule} className="w-full sm:w-auto px-3 py-2.5 rounded-lg bg-decolae-600 text-xs text-white disabled:opacity-50">{flight.status === 'PLANEJAMENTO' ? 'Programar voo' : 'Reabrir planejamento'}</button>}
     </article>
   );
 }

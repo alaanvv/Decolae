@@ -6,3 +6,34 @@
 .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+html { -webkit-tap-highlight-color: transparent; }
+
+/* Respeita notch / barra de gestos quando instalado como PWA (viewport-fit=cover). */
+.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+.pb-safe { padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px)); }
+.top-safe-4 { top: calc(1rem + env(safe-area-inset-top, 0px)); }
+
+@media (max-width: 639px) {
+  /* iOS dá zoom ao focar campos com fonte < 16px. */
+  input, select, textarea { font-size: 16px !important; }
+}
+
+/* Tabelas viram cards empilhados abaixo de md (768px). */
+@media (max-width: 767px) {
+  .responsive-table thead { display: none; }
+  .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td { display: block; width: 100%; }
+  .responsive-table tr { padding: 0.75rem 1rem; }
+  .responsive-table td { padding: 0.25rem 0 !important; text-align: left !important; }
+  .responsive-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #64748b;
+    margin-bottom: 0.125rem;
+  }
+  .responsive-table td:last-child:not([data-label]) > div { justify-content: flex-end; }
+}

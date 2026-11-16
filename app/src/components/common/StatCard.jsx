@@ -7,13 +7,13 @@ const TONES = {
 
 export default function StatCard({ label, value, icon, tone }) {
   return (
-    <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700/60 flex items-center gap-4">
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${TONES[tone]}`}>
+    <div className="bg-slate-800 p-4 sm:p-5 rounded-2xl border border-slate-700/60 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+      <div className={`w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl flex items-center justify-center text-xl ${TONES[tone]}`}>
         <i className={`fa-solid ${icon}`} />
       </div>
       <div>
-        <p className="text-xs text-slate-400 uppercase font-semibold">{label}</p>
-        <h3 className="text-2xl font-bold text-white">{value}</h3>
+        <p className="text-[10px] sm:text-xs text-slate-400 uppercase font-semibold leading-tight">{label}</p>
+        <h3 className="text-xl sm:text-2xl font-bold text-white">{value}</h3>
       </div>
     </div>
   );

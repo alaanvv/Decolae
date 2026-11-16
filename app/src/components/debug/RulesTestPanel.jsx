@@ -19,7 +19,7 @@ function SectionCard({ section, running, onlyFailures }) {
 
   if (onlyFailures && !checks.length) return null;
   return (
-    <div className={`bg-slate-800/60 rounded-2xl border ${border} p-5 space-y-3`}>
+    <div className={`bg-slate-800/60 rounded-2xl border ${border} p-4 sm:p-5 space-y-3`}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="flex items-start gap-3">
           <span className="w-7 h-7 shrink-0 rounded-lg bg-slate-700 text-slate-200 text-xs font-bold flex items-center justify-center">{section.id}</span>
@@ -91,7 +91,7 @@ export default function RulesTestPanel() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60 space-y-4">
+      <div className="bg-slate-800/60 p-4 sm:p-6 rounded-2xl border border-slate-700/60 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-bold text-white">Testes de regras de negócio</h3>
@@ -110,7 +110,7 @@ export default function RulesTestPanel() {
         {checks.length > 0 && (
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                 <span className="text-emerald-400 font-semibold"><i className="fa-solid fa-circle-check" /> {passed} passaram</span>
                 <span className={failed ? 'text-rose-400 font-semibold' : 'text-slate-500'}><i className="fa-solid fa-circle-xmark" /> {failed} falharam</span>
                 {summary && <span className="text-slate-500">{(summary.duracaoMs / 1000).toFixed(1)}s</span>}

@@ -18,9 +18,9 @@ export default function RoutesTab() {
             <td className="p-4 font-semibold text-white">{r.origin}</td>
             <td className="p-4 font-semibold text-white">{r.destination}</td>
             <td className="p-4 text-right">
-              <div className="flex justify-end gap-3">
-                <button type="button" onClick={() => setEditing(r)} aria-label="Editar trajeto" title="Editar trajeto" className="text-slate-400 hover:text-decolae-400 transition"><i className="fa-solid fa-pen" /></button>
-                <button type="button" onClick={() => remove(r)} aria-label={`Excluir trajeto ${r.origin} para ${r.destination}`} title="Excluir trajeto" className="text-slate-400 hover:text-rose-400 transition"><i className="fa-solid fa-trash" /></button>
+              <div className="flex justify-end gap-4">
+                <button type="button" onClick={() => setEditing(r)} aria-label="Editar trajeto" title="Editar trajeto" className="w-10 h-10 -m-2 flex items-center justify-center rounded-lg text-slate-400 hover:text-decolae-400 hover:bg-slate-700/40 transition"><i className="fa-solid fa-pen" /></button>
+                <button type="button" onClick={() => remove(r)} aria-label={`Excluir trajeto ${r.origin} para ${r.destination}`} title="Excluir trajeto" className="w-10 h-10 -m-2 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-700/40 transition"><i className="fa-solid fa-trash" /></button>
               </div>
             </td>
           </tr>

@@ -18,13 +18,13 @@ export default function GerenteDashboard() {
   const { Content } = TABS.find((t) => t.id === active);
   return (
     <div className="space-y-6">
-      <div className="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60">
-        <h2 className="text-2xl font-bold text-white">Painel do Gerente Operacional</h2>
+      <div className="bg-slate-800/60 p-4 sm:p-6 rounded-2xl border border-slate-700/60">
+        <h2 className="text-xl sm:text-2xl font-bold text-white">Painel do Gerente Operacional</h2>
         <p className="text-slate-400 text-sm mt-1">Controle de infraestrutura: trajetos rotineiros, frota de aeronaves e escalas da equipe.</p>
       </div>
-      <div className="flex border-b border-slate-700 overflow-x-auto">
+      <div className="flex border-b border-slate-700 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:none]">
         {TABS.map((t) => (
-          <button key={t.id} onClick={() => setActive(t.id)} className={`px-6 py-3 font-semibold text-sm border-b-2 transition flex items-center gap-2 ${active === t.id ? 'border-decolae-500 text-decolae-500' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+          <button key={t.id} onClick={() => setActive(t.id)} className={`shrink-0 whitespace-nowrap px-4 sm:px-6 py-3 font-semibold text-sm border-b-2 transition flex items-center gap-2 ${active === t.id ? 'border-decolae-500 text-decolae-500' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
             <i className={`fa-solid ${t.icon}`} /> {t.label}
           </button>
         ))}

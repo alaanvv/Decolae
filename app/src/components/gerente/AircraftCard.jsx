@@ -4,9 +4,9 @@ export default function AircraftCard({ aircraft: a, onDelete, onEdit }) {
       <div>
         <div className="flex items-start justify-between gap-3">
           <span className="text-lg font-bold text-white tracking-wider">{a.code}</span>
-          <div className="flex gap-3">
-            <button type="button" onClick={onEdit} aria-label={`Editar aeronave ${a.code}`} title="Editar aeronave" className="text-slate-400 hover:text-decolae-400 transition"><i className="fa-solid fa-pen" /></button>
-            <button type="button" onClick={onDelete} aria-label={`Excluir aeronave ${a.code}`} title="Excluir aeronave" className="text-slate-400 hover:text-rose-400 transition"><i className="fa-solid fa-trash" /></button>
+          <div className="flex gap-4 -mr-1">
+            <button type="button" onClick={onEdit} aria-label={`Editar aeronave ${a.code}`} title="Editar aeronave" className="w-10 h-10 -m-2 flex items-center justify-center rounded-lg text-slate-400 hover:text-decolae-400 hover:bg-slate-700/40 transition"><i className="fa-solid fa-pen" /></button>
+            <button type="button" onClick={onDelete} aria-label={`Excluir aeronave ${a.code}`} title="Excluir aeronave" className="w-10 h-10 -m-2 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-700/40 transition"><i className="fa-solid fa-trash" /></button>
           </div>
         </div>
         <h4 className="text-sm font-semibold text-slate-300 mt-1">{a.model}</h4>
