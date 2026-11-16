@@ -6,6 +6,7 @@ A decolaê é uma empresa de voos domésticos, que deseja organizar melhor seus 
 - [Evolução](docs/evolucao.md)
 - [Inicializar o banco de dados](docs/guia-banco-de-dados.md)
 - [Configurar a API](docs/guia-api.md)
+- [Testes das regras de negócio](docs/testes-regras.md)
 
 ## Executar
 
