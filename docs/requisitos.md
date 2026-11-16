@@ -18,7 +18,8 @@ O sistema deve possuir três tipos de usuários principais:
   - Remove membros da tripulação
 
 - **Administrador**
-  - Cria voos
+  - Cria, consulta e altera voos
+  - Remove voos sem passagens ou tripulantes vinculados
 
 - **Cliente**
   - Consulta voos disponíveis
@@ -95,6 +96,6 @@ O sistema deve garantir que as seguintes regras sejam seguidas:
 
 ## Estado de implementação
 
-O gerente pode cadastrar, alterar e remover trajetos, aeronaves e tripulantes e gerenciar as escalas. O administrador cadastra voos, que começam em planejamento; o gerente programa o voo após registrar a tripulação mínima. O cliente consulta voos com assentos disponíveis, compra passagens com preço configurado no servidor e pode consultar ou cancelar as próprias passagens.
+O gerente pode cadastrar, alterar e remover trajetos, aeronaves e tripulantes e gerenciar as escalas. O administrador pode cadastrar, consultar e alterar voos, que começam em planejamento, além de remover voos sem passagens ou tripulantes vinculados. O gerente programa o voo após registrar a tripulação mínima. O cliente consulta voos com assentos disponíveis, compra passagens com preço configurado no servidor e pode consultar ou cancelar as próprias passagens.
 
 As rotas da API exigem sessão e validam o perfil de acesso. O status da aeronave é calculado como disponível ou em voo conforme os horários dos voos ativos; não é editado manualmente. As regras de conflito de aeronave, tripulação, descanso, capacidade, assento e horários de passageiros são aplicadas pelo PostgreSQL. Para a regra de descanso, a duração do voo é usada como medida de horas trabalhadas e o intervalo entre voos é medido da chegada à próxima partida. O processamento de pagamento externo não está integrado.

@@ -11,6 +11,7 @@ export default async (app) => {
         t.cidade_destino,
         v.previsao_partida,
         v.previsao_chegada,
+        v.id_trajeto,
         v.id_aeronave,
         a.modelo AS modelo_aeronave,
         a.quantidade_assentos,
@@ -89,6 +90,49 @@ export default async (app) => {
       if (error.code === '22P02')
         return reply.code(400).send({ erro: 'Valor inválido para um dos campos' })
 
+      throw error
+    }
+  })
+
+  app.put('/:numero_voo', { preHandler: requireRole('ADMINISTRADOR') }, async (request, reply) => {
+    const { numero_voo } = request.params
+    const { previsao_partida, previsao_chegada, id_trajeto, id_aeronave } = request.body ?? {}
+
+    if (!previsao_partida || !previsao_chegada || id_trajeto == null || !id_aeronave)
+      return reply.code(400).send({ erro: 'Horários, trajeto e aeronave são obrigatórios.' })
+
+    try {
+      const result = await db.query(
+        `UPDATE voo
+         SET previsao_partida = $2, previsao_chegada = $3,
+             id_trajeto = $4, id_aeronave = $5
+         WHERE numero_voo = $1
+         RETURNING *`,
+        [numero_voo, previsao_partida, previsao_chegada, Number(id_trajeto), id_aeronave]
+      )
+      if (!result.rowCount) return reply.code(404).send({ erro: 'Voo não encontrado.' })
+      return result.rows[0]
+    } catch (error) {
+      if (error.code === '23503') return reply.code(400).send({ erro: 'Trajeto ou aeronave inexistente.' })
+      if (error.code === '23514') return reply.code(400).send({ erro: error.message })
+      if (error.code === '23P01') return reply.code(409).send({ erro: error.message })
+      if (error.code === '22P02' || error.code === '22007')
+        return reply.code(400).send({ erro: 'Horário, trajeto ou aeronave inválidos.' })
+      throw error
+    }
+  })
+
+  app.delete('/:numero_voo', { preHandler: requireRole('ADMINISTRADOR') }, async (request, reply) => {
+    try {
+      const result = await db.query(
+        'DELETE FROM voo WHERE numero_voo = $1 RETURNING numero_voo',
+        [request.params.numero_voo]
+      )
+      if (!result.rowCount) return reply.code(404).send({ erro: 'Voo não encontrado.' })
+      return reply.code(204).send()
+    } catch (error) {
+      if (error.code === '23503')
+        return reply.code(409).send({ erro: 'Não é possível remover um voo com tripulantes ou passagens vinculadas.' })
       throw error
     }
   })

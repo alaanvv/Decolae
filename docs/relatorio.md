@@ -95,7 +95,7 @@ O identificador de trajeto é gerado automaticamente pelo PostgreSQL por meio de
 Parte das regras do sistema foi implementada diretamente no PostgreSQL por meio de funções e triggers. Essa abordagem permite centralizar determinadas validações no banco, evitando que elas dependam exclusivamente do comportamento da interface.
 Talvez isso não seja o ideal para essas situações por questões de otimização, mas escolhemos implementar pra dar um foco maior no banco de dados, por ser o assunto da disciplina.
 
-Embora parte das validações já esteja implementada, algumas regras previstas no levantamento de requisitos ainda precisam de mecanismos específicos.
+As regras de negócio listadas a seguir estão implementadas no banco de dados e na API. Os triggers centralizam as validações operacionais no PostgreSQL, enquanto a API converte as violações em respostas adequadas para a interface.
 
 | Regra | Situação |
 |---|---|
@@ -110,7 +110,7 @@ Embora parte das validações já esteja implementada, algumas regras previstas 
 | Impedir a compra de passagens para voos com horários incompatíveis para o cliente | Trigger rejeita passagens emitidas com horários sobrepostos. |
 | Garantir a consistência das compras em transações concorrentes | Compras bloqueiam o voo e o cliente durante a validação, além da unicidade parcial por assento. |
 
-A identificação dessas pendências orienta os próximos passos de desenvolvimento. Em particular, as validações de concorrência devem considerar que operações simultâneas podem consultar o mesmo estado do banco antes de efetuar alterações.
+As operações de compra concorrentes são serializadas por voo e cliente, e a unicidade parcial do assento impede reservas duplicadas. A regra de jornada considera como horas trabalhadas a duração dos voos e mede o descanso entre a chegada de um voo e a partida do seguinte.
 
 # Povoamento do banco de dados
 
@@ -218,9 +218,9 @@ Lista o histórico de compras de cada cliente no sistema.
 
 **Observação:** os resultados dessas consultas devem ser inseridos no relatório após a execução no banco. As consultas apresentadas são exemplos de demonstração e não constituem, por si só, evidência de que todos os testes foram executados.
 
-# Protótipo da interface
+# Interface web
 
-Desenvolvemos o protótipo da aplicação organizado pelos três perfis de acesso. O sistema redireciona o utilizador para o painel correspondente conforme a autenticação.
+Desenvolvemos uma aplicação web responsiva organizada pelos três perfis de acesso. O sistema redireciona o utilizador para o painel correspondente conforme a autenticação. Não foi desenvolvido um aplicativo móvel nativo; esse recurso opcional não faz parte do escopo entregue.
 
 ## Tela de login
 
@@ -239,7 +239,7 @@ Permite pesquisar voos por origem, destino e data, além de visualizar o histór
 
 ## Painel do administrador
 
-Apresenta o painel com indicadores gerais da operação e modal para inclusão de novos voos.
+Apresenta indicadores gerais da operação, criação de voos e ações para editar os horários, o trajeto e a aeronave ou remover voos sem passagens e tripulantes vinculados. Os horários previstos de partida e chegada são atributos do voo, permitindo reutilizar um mesmo trajeto em diferentes voos.
 
 <img width="1920" height="1020" alt="2026-10-29 (3)" src="https://github.com/user-attachments/assets/c7e5de65-3bb6-432a-aa92-ee05cf91f654" />
 
@@ -265,16 +265,13 @@ Contém as abas para gestão de rotas/trajetos, frota de aeronaves e escalas da 
 
 ---
 
-# 8. Estado atual e próximos passos
+# 8. Limitações e possíveis evoluções
 
 Atualmente, o fluxo de compra, consulta e cancelamento de passagens usa a API e o banco de dados. O preço padrão é configurável por `TICKET_PRICE`.
 
-Para a entrega final, vamos focar nos seguintes pontos:
+O sistema registra a compra de passagens, mas não processa pagamentos externos. A aplicação também não inclui um aplicativo móvel nativo; a interface entregue é web responsiva.
 
-- Executar testes de integração no PostgreSQL para as regras de escala, descanso, disponibilidade e concorrência.
-- Integrar um provedor de pagamento caso a compra precise processar pagamentos externos.
-
-Essas atividades buscam garantir que a versão final seja capaz de atender aos requisitos funcionais e às restrições operacionais do sistema.
+Como evolução, podem ser adicionados testes automatizados de integração para as regras de escala, descanso, disponibilidade e concorrência, além da integração com um provedor de pagamento caso seja necessário processar cobranças reais.
 
 Links de acesso para o projeto:
 ---

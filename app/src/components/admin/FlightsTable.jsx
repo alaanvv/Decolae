@@ -3,11 +3,14 @@ import Badge from '../common/Badge';
 import { formatDate } from '../../utils/formatDate';
 import { statusInfo } from '../../utils/flightStatus';
 import useFlightsTable from './useFlightsTable';
+import { useState } from 'react';
+import CreateFlightModal from './CreateFlightModal';
 
-const HEADERS = ['Código Voo', 'Trajeto (Origem ➔ Destino)', 'Horário Partida / Chegada', 'Aeronave', 'Status'];
+const HEADERS = ['Código Voo', 'Trajeto (Origem ➔ Destino)', 'Horário Partida / Chegada', 'Aeronave', 'Status', ''];
 
 export default function FlightsTable() {
-  const { flights, search, setSearch } = useFlightsTable();
+  const { flights, search, setSearch, remove } = useFlightsTable();
+  const [editing, setEditing] = useState(null);
 
   const header = (
     <div className="p-5 border-b border-slate-700/80 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -20,19 +23,28 @@ export default function FlightsTable() {
   );
 
   return (
-    <Table headers={HEADERS} header={header} isEmpty={!flights.length} empty="Nenhum voo encontrado.">
-      {flights.map((f) => {
-        const s = statusInfo(f.status);
-        return (
-          <tr key={f.id} className="hover:bg-slate-700/30 transition">
-            <td className="p-4 font-bold text-white">{f.code}</td>
-            <td className="p-4">{f.origin} <i className="fa-solid fa-arrow-right text-slate-500 mx-1 text-xs" /> {f.destination}</td>
-            <td className="p-4">{formatDate(f.departure)} <br /><span className="text-slate-500 text-[10px]">Até {formatDate(f.arrival)}</span></td>
-            <td className="p-4 text-slate-400">{f.aircraft}</td>
-            <td className="p-4"><Badge tone={s.tone}>{s.label}</Badge></td>
-          </tr>
-        );
-      })}
-    </Table>
+    <>
+      <Table headers={HEADERS} header={header} isEmpty={!flights.length} empty="Nenhum voo encontrado.">
+        {flights.map((f) => {
+          const s = statusInfo(f.status);
+          return (
+            <tr key={f.id} className="hover:bg-slate-700/30 transition">
+              <td className="p-4 font-bold text-white">{f.code}</td>
+              <td className="p-4">{f.origin} <i className="fa-solid fa-arrow-right text-slate-500 mx-1 text-xs" /> {f.destination}</td>
+              <td className="p-4">{formatDate(f.departure)} <br /><span className="text-slate-500 text-[10px]">Até {formatDate(f.arrival)}</span></td>
+              <td className="p-4 text-slate-400">{f.aircraft}</td>
+              <td className="p-4"><Badge tone={s.tone}>{s.label}</Badge></td>
+              <td className="p-4 text-right">
+                <div className="flex justify-end gap-3">
+                  <button type="button" onClick={() => setEditing(f)} aria-label={`Editar voo ${f.code}`} title="Editar voo" className="text-slate-400 hover:text-decolae-400 transition"><i className="fa-solid fa-pen" /></button>
+                  <button type="button" onClick={() => remove(f)} aria-label={`Remover voo ${f.code}`} title="Remover voo" className="text-slate-400 hover:text-rose-400 transition"><i className="fa-solid fa-trash" /></button>
+                </div>
+              </td>
+            </tr>
+          );
+        })}
+      </Table>
+      {editing && <CreateFlightModal flight={editing} onClose={() => setEditing(null)} />}
+    </>
   );
 }
