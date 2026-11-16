@@ -72,6 +72,7 @@ export default async (app) => {
         FROM passagem p JOIN voo other ON other.numero_voo = p.numero_voo
         WHERE p.cpf_cliente = $1 AND p.status = 'EMITIDA'
           AND other.numero_voo <> $2
+          AND other.status <> 'CANCELADO'
           AND other.previsao_partida < $4
           AND $3 < other.previsao_chegada
         LIMIT 1
