@@ -281,3 +281,21 @@ Links de acesso para o projeto:
 > - 🖥️ **Interface do protótipo (HTML):** [app/index.html](https://github.com/alaanvv/Decolae/blob/master/app/index.html) *(para testar localmente, basta clonar o repositório e abrir o arquivo `index.html` no navegador)*
 
 ---
+
+---
+
+## Melhorias Avançadas de Banco de Dados e Interface
+
+Para consolidar a robustez analítica, a rastreabilidade de operações e a experiência de uso do sistema **Decolaê**, foram incorporadas as seguintes evoluções:
+
+1. **Views Gerenciais (`database/views.sql`):**
+   - `decolae.vw_ocupacao_voos`: consolida em tempo real a quantidade de assentos ocupados (desconsiderando bilhetes cancelados), assentos disponíveis, taxa percentual de ocupação e receita confirmada por voo.
+   - `decolae.vw_faturamento_trajeto`: agrega o volume de voos, bilhetes ativos/cancelados e faturamento total por rota (`cidade_origem` → `cidade_destino`).
+2. **Auditoria Automática por Trigger e JSONB (`decolae.log_auditoria`):**
+   - Implementada a função `registrar_auditoria_voo()` associada à trigger `trigger_auditoria_voo` (`AFTER INSERT OR UPDATE ON voo`), registrando automaticamente alterações de status, horários e aeronaves com payload estruturado em `JSONB`.
+3. **Índices Compostos de Consulta:**
+   - `idx_voo_trajeto_partida` em `voo (id_trajeto, previsao_partida)` para acelerar filtros de busca de voos por rota e data.
+   - `idx_passagem_cliente_status` em `passagem (cpf_cliente, status)` para otimizar a consulta de reservas ativas por passageiro.
+4. **Automação de Ambiente e Interface:**
+   - Script unificado `database/reset.sh` (`npm run db:setup`) aplicando `schema.sql`, `migrations/`, `triggers.sql`, `views.sql` e `seed.sql` em sequência.
+   - Exposição das Views e do log de auditoria no endpoint `GET /api/relatorios` e no **Painel do Administrador**, além de **mapa visual interativo de assentos** na reserva do cliente e atalhos de acesso rápido na tela de login.

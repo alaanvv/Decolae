@@ -2,12 +2,16 @@
   "name": "decolae",
   "private": true,
   "type": "module",
-  "workspaces": ["app", "api"],
+  "workspaces": [
+    "app",
+    "api"
+  ],
   "scripts": {
     "dev": "npm run dev --workspace app",
     "build": "npm run build --workspace app",
     "start": "npm run build && node api/src/server.js",
-    "debug:regras": "npm run debug:regras --workspace api"
+    "debug:regras": "npm run debug:regras --workspace api",
+    "db:setup": "bash database/reset.sh"
   },
   "dependencies": {
     "@fastify/cors": "^11.3.1",

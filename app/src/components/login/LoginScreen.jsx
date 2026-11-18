@@ -2,6 +2,12 @@ import useLogin from './useLogin';
 
 const inputCls = 'w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-decolae-500 focus:ring-1 focus:ring-decolae-500';
 
+const DEMO_ACCOUNTS = [
+  { label: 'Admin', email: 'admin@decolae.com', senha: 'senha123', icon: 'fa-shield-halved' },
+  { label: 'Gerente', email: 'gerente@decolae.com', senha: 'senha123', icon: 'fa-user-tie' },
+  { label: 'Cliente', email: 'joao@email.com', senha: 'senha123', icon: 'fa-user' },
+];
+
 function IconInput({ label, icon, ...props }) {
   return (
     <div>
@@ -17,6 +23,12 @@ function IconInput({ label, icon, ...props }) {
 export default function LoginScreen() {
   const { mode, setMode, loading, bind, submit } = useLogin();
   const isRegister = mode === 'register';
+
+  const fillDemo = (acc) => {
+    bind('email').onChange({ target: { value: acc.email } });
+    bind('senha').onChange({ target: { value: acc.senha } });
+  };
+
   return (
     <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-decolae-900">
       <div className="w-full max-w-md bg-slate-800/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-slate-700/50">
@@ -45,6 +57,25 @@ export default function LoginScreen() {
             <i className="fa-solid fa-arrow-right text-sm" />
           </button>
         </form>
+
+        {!isRegister && (
+          <div className="mt-5 pt-4 border-t border-slate-700/60">
+            <p className="text-[11px] uppercase tracking-wider text-slate-400 text-center mb-2.5">Acesso Rápido (Demonstração)</p>
+            <div className="grid grid-cols-3 gap-2">
+              {DEMO_ACCOUNTS.map((acc) => (
+                <button
+                  key={acc.label}
+                  type="button"
+                  onClick={() => fillDemo(acc)}
+                  className="py-1.5 px-2 bg-slate-900/90 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-200 flex items-center justify-center gap-1.5 transition"
+                >
+                  <i className={`fa-solid ${acc.icon} text-decolae-400 text-[11px]`} />
+                  <span>{acc.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <button type="button" onClick={() => setMode(isRegister ? 'login' : 'register')} className="mt-4 w-full text-xs text-decolae-400 hover:underline">
           {isRegister ? 'Já tenho conta — entrar' : 'Não tem conta? Cadastre-se como cliente'}

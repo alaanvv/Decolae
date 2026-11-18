@@ -3,6 +3,7 @@ import AdminStats from './AdminStats';
 import FlightsTable from './FlightsTable';
 import CreateFlightModal from './CreateFlightModal';
 import RulesTestPanel from '../debug/RulesTestPanel';
+import ReportsAuditPanel from './ReportsAuditPanel';
 
 export default function AdminDashboard() {
   const [creating, setCreating] = useState(false);
@@ -21,6 +22,7 @@ export default function AdminDashboard() {
       </div>
       <AdminStats />
       <FlightsTable />
+      <ReportsAuditPanel />
       <button type="button" onClick={() => setShowTests((v) => !v)} className="text-sm text-slate-400 hover:text-slate-200 transition flex items-center gap-2">
         <i className={`fa-solid ${showTests ? 'fa-chevron-down' : 'fa-chevron-right'} text-xs`} />
         <i className="fa-solid fa-vial-circle-check" /> Testes de regras de negócio
